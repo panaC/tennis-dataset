@@ -21,13 +21,13 @@ const models  = require('./models');
   jsondb.dataset = [];
   jsondb.date = Date.now();
 
-  // While on each tournament 
+  // While on each tournament
   for (let i in elements) {
     let tmpTour = {};
     tmpTour.tournamentName = elements[i][1];
     tmpTour.tournamentUrl = elements[i][0];
     tmpTour.tour = [];
-    
+
     // ICI exporter la creation des donnees dans la base a la fin de la generation du json
     // Save le Json dans un fichier a la fin
 
@@ -38,14 +38,14 @@ const models  = require('./models');
     //   name: tournamentName
     // });
     // let tournamentId = event.dataValues.id;
-    
+
     // Get all URL per years
     await page.goto(elements[i][0] + 'archive/');
     const linkYears = await page.evaluate(() => {
       let elements = Array.from(document.querySelector(".tournament-page-archiv").querySelectorAll("a"));
       let links = elements.map((element, index) => {
         return [ (index % 2 == 0 ? element.href : null),
-          /(19[5-9]\d|20[0-4]\d|2050)$/.exec(element.innerText)[0] ];
+          /(19[5-9]\d|20[0-4]\d|2050)$/.exec(element.innerText) ];
       });
       return links;
     });
@@ -54,17 +54,18 @@ const models  = require('./models');
     for (let j in linkYears) {
       if (linkYears[j][0]) {
         let tmpTourYear = {};
-        tmpTourYear.year = linkYears[j][1]; 
+        tmpTourYear.year = linkYears[j][1];
 
         // Get Resultat table only
-        await page.goto(linkYears[j] + 'results/');
-        
+        await page.goto(linkYears[j][0] + 'results/');
+
         //parse each <tr> in table
         tmpTourYear.tourYear = await page.evaluate(() => {
 
           //display all match
           loadMoreGames();
           loadMoreGames();
+
 
           var retu = [];
           //Warning querySelectorAll return n+1 cases : n element and the length
@@ -89,14 +90,18 @@ const models  = require('./models');
         });
 
         // Scrap all data on each match ID
-        for (let k in linkMatch) {
-          for (let kk in linkMatch[k].match) {
-            await page.goto("https://www.flashscore.com/match/" + linkMatch[k].match[kk]);
+        for (let k in tmpTourYear.tourYear) {
+          for (let kk in tmpTourYear.tourYear[k].match) {
+            await page.goto("https://www.flashscore.com/match/" + tmpTourYear.tourYear[k].match[kk].id);
             await page.evaluate(() => {
               detail_tab('odds-comparison');
+            });
+            await page.evaluate(() => {
               detail_tab('statistics');
+            });
+            await page.evaluate(() => {
               detail_tab('match-history');
-            })
+            });
           }
         } // while match
         tmpTour.tour.push(tmpTourYear);
