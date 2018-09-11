@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const models  = require('./models');
+const ft = require('./match_evaluate.js');
 
 (async () => {
   const browser = await puppeteer.launch();
@@ -93,30 +94,21 @@ const models  = require('./models');
         for (let k in tmpTourYear.tourYear) {
           for (let kk in tmpTourYear.tourYear[k].match) {
             await page.goto("https://www.flashscore.com/match/" + tmpTourYear.tourYear[k].match[kk].id);
+            //download data belongs to api flashscore
             await page.evaluate(() => {
               detail_tab('odds-comparison');
               detail_tab('statistics');
               detail_tab('match-history');
               detail_tab('summary');
             });
+            //wait download data
             await page.waitForSelector("#tab-match-statistics .ifmenu");
-            await page.waitForSelector("#tab-match-history .ifmenu"); 
-            await page.waitForSelector("#tab-match-odds-comparison .ifmenu"); 
-            var score = await page.evaluate(() => {
-              let el = document.querySelector("#tab-match-summary table#parts tr.odd");
-              var score = {};
-              score.home = {};
-              let tmpOnclick = el.querySelector("td.fl.summary-horizontal a").attributes.onclick.value;
-              var tmpRegexp = /(\/.*\/(.*)\/(.*)\/)/.exec(tmpOnclick);
-              score.home.playerURL = tmpRegexp['1'];
-              score.home.playerID = tmpRegexp['2'];
-              score.home.playerName = tmpRegexp['3'];
-              var tmpRegexp = /(.*) \((.*)\)/.exec(el.querySelector("td.fl.summary-horizontal a").innerText);
-              score.home.player = tmpRegexp['1'];
-              score.home.playerCountry = tmpRegexp['2'];
-              score.home.score = el.querySelector("td.score").innerText
-            });
-            console.log(score);
+            await page.waitForSelector("#tab-match-history .ifmenu");
+            await page.waitForSelector("#tab-match-odds-comparison .ifmenu");
+            //get info match
+            var score = await page.evaluate(ft.score);
+            var stats = await page.evaluate(ft.stats);
+            console.log(stats);
           }
         } // while match
         tmpTour.tour.push(tmpTourYear);
