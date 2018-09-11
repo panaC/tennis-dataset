@@ -95,13 +95,28 @@ const models  = require('./models');
             await page.goto("https://www.flashscore.com/match/" + tmpTourYear.tourYear[k].match[kk].id);
             await page.evaluate(() => {
               detail_tab('odds-comparison');
-            });
-            await page.evaluate(() => {
               detail_tab('statistics');
-            });
-            await page.evaluate(() => {
               detail_tab('match-history');
+              detail_tab('summary');
             });
+            await page.waitForSelector("#tab-match-statistics .ifmenu");
+            await page.waitForSelector("#tab-match-history .ifmenu"); 
+            await page.waitForSelector("#tab-match-odds-comparison .ifmenu"); 
+            var score = await page.evaluate(() => {
+              let el = document.querySelector("#tab-match-summary table#parts tr.odd");
+              var score = {};
+              score.home = {};
+              let tmpOnclick = el.querySelector("td.fl.summary-horizontal a").attributes.onclick.value;
+              var tmpRegexp = /(\/.*\/(.*)\/(.*)\/)/.exec(tmpOnclick);
+              score.home.playerURL = tmpRegexp['1'];
+              score.home.playerID = tmpRegexp['2'];
+              score.home.playerName = tmpRegexp['3'];
+              var tmpRegexp = /(.*) \((.*)\)/.exec(el.querySelector("td.fl.summary-horizontal a").innerText);
+              score.home.player = tmpRegexp['1'];
+              score.home.playerCountry = tmpRegexp['2'];
+              score.home.score = el.querySelector("td.score").innerText
+            });
+            console.log(score);
           }
         } // while match
         tmpTour.tour.push(tmpTourYear);
