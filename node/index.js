@@ -1,9 +1,42 @@
 const puppeteer = require('puppeteer');
 const models  = require('./models');
+const fs = require('fs');
 const ft = require('./match_evaluate.js');
 const ftour = require('./tour_evaluate.js');
 
+// Create jsondb Object
+let jsondb = {};
+let delay_waitFor = 1000;
+let FlagError = false;
+const filename = "dataset.json"
 
+function writeJson(json) {
+  fs.writeFile(filename, json, 'utf8', (err) => {
+    console.log("=== ERROR WriteJson ===");
+    console.log(err);
+  });
+}
+
+function readJson() {
+  var json = {};
+
+  return new Promise(resolve => {
+    fs.readFile(filename, 'utf8', (err, data) => {
+      if (err && err.errno != -2) {
+        if (err){
+          console.log("=== ERROR readJson ===");
+          console.log(err);
+        } else {
+          console.log("Parse Json File");
+          json = JSON.parse(data); //now it an object
+        }
+      } else {
+        console.log("No Json File");
+      }
+      resolve(json);
+    });
+  });
+}
 
     // ICI exporter la creation des donnees dans la base a la fin de la generation du json
     // Save le Json dans un fichier a la fin
@@ -16,25 +49,32 @@ const ftour = require('./tour_evaluate.js');
     // });
     // let tournamentId = event.dataValues.id;
 
-let delay_waitFor = 1000;
-let FlagError = false;
 
 (async () => {
+
+  // Read JSON FIle or Initialisation json
+  jsondb = await readJson();
+  // Initialisation json
+  if (jsondb.state && jsondb.state == "ok") {
+    console.log("All DATASET is saved");
+    process.exit();
+  } else if (!jsondb.tournament || !jsondb.date) {
+    console.log("Initialisation dataset");
+    jsondb.tournament = {};
+    jsondb.date = [];
+    jsondb.date.push(Date.now());
+  }
+
+  // Lauch browser headless
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
+  // Start URL
   await page.goto('https://www.flashscore.com/tennis/');
   await page.setViewport({width: 1366, height: 768});
-
   await page.waitFor(delay_waitFor); // wait for stabilization
 
   // GET all tournament URL
   const tourUrl = await page.evaluate(ftour.tourUrl)
-
-  // Create jsondb Object
-  let jsondb = {};
-  jsondb.tournament = {};
-  jsondb.date = [];
-  jsondb.date.push(Date.now());
 
   // While on each tournament
   for (let i in tourUrl) {
@@ -131,8 +171,9 @@ let FlagError = false;
         if (FlagError) {
           tmpTourYear.state = "ok";
         } else {
-          //save jsondb into redis
-          process.exit();
+          //save jsondb
+          writeJson(jsondb);
+          process.exit(1);
         }
         jsondb.tournament[tmpTour.tournamentName][tmpTourYear.year] = tmpTourYear;
       } // while years
@@ -140,6 +181,8 @@ let FlagError = false;
     jsondb.tournament[tmpTour.tournamentName].state = "ok";
     console.log("=> Progression tournament: ", i / elements.length * 100, "%");
   }
+  jsondb.state = "ok";
+  writeJson(jsondb);
 
   await browser.close();
 })();
