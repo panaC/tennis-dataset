@@ -3,26 +3,6 @@ const models  = require('./models');
 const ft = require('./match_evaluate.js');
 const ftour = require('./tour_evaluate.js');
 
-(async () => {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto('https://www.flashscore.com/tennis/');
-  await page.setViewport({width: 1366, height: 768});
-
-  // GET all tournament URL
-  const tourUrl = await page.evaluate(ftour.tourUrl)
-
-  // Create jsondb Object
-  let jsondb = {};
-  jsondb.dataset = [];
-  jsondb.date = Date.now();
-
-  // While on each tournament
-  for (let i in tourUrl) {
-    let tmpTour = {};
-    tmpTour.tournamentName = tourUrl[i][1];
-    tmpTour.tournamentUrl = tourUrl[i][0];
-    tmpTour.tour = [];
 
 
     // ICI exporter la creation des donnees dans la base a la fin de la generation du json
@@ -36,8 +16,39 @@ const ftour = require('./tour_evaluate.js');
     // });
     // let tournamentId = event.dataValues.id;
 
+let delay_waitFor = 1000;
+let FlagError = false;
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto('https://www.flashscore.com/tennis/');
+  await page.setViewport({width: 1366, height: 768});
+
+  await page.waitFor(delay_waitFor); // wait for stabilization
+
+  // GET all tournament URL
+  const tourUrl = await page.evaluate(ftour.tourUrl)
+
+  // Create jsondb Object
+  let jsondb = {};
+  jsondb.tournament = {};
+  jsondb.date = [];
+  jsondb.date.push(Date.now());
+
+  // While on each tournament
+  for (let i in tourUrl) {
+    let tmpTour = {};
+    tmpTour.tournamentName = tourUrl[i][1];
+    tmpTour.tournamentUrl = tourUrl[i][0];
+    if (jsondb.tournament[tmpTour.tournamentName] && jsondb.tournament[tmpTour.tournamentName].state == "ok") {
+      break; //pass already saved
+    }
+    jsondb.tournament[tmpTour.tournamentName] = {};
     // Get all URL per years
     await page.goto(tmpTour.tournamentUrl + 'archive/');
+
+    await page.waitFor(delay_waitFor); // wait for stabilization
     const linkYears = await page.evaluate(ftour.linkYears);
 
     // While on each tournament archive per year
@@ -45,10 +56,16 @@ const ftour = require('./tour_evaluate.js');
       if (linkYears[j]) {
         let tmpTourYear = {};
         tmpTourYear.year = linkYears[j][1];
+        if (jsondb.tournament[tmpTour.tournamentName][tmpTourYear.year] &&
+          jsondb.tournament[tmpTour.tournamentName][tmpTourYear.year].state == "ok") {
+          break; //pass already saved
+        }
         console.log("====> Tournament:", tmpTour.tournamentName, ", Year:", tmpTourYear.year);
 
         // Get Resultat table only
         await page.goto(linkYears[j][0] + 'results/');
+
+        await page.waitFor(delay_waitFor); // wait for stabilization
 
         //parse each <tr> in table
         tmpTourYear.tourYear = await page.evaluate(ftour.tourYears);
@@ -57,10 +74,10 @@ const ftour = require('./tour_evaluate.js');
         for (let k in tmpTourYear.tourYear) {
           for (let kk in tmpTourYear.tourYear[k].match) {
             await page.goto("https://www.flashscore.com/match/" + tmpTourYear.tourYear[k].match[kk].id);
-            var progression = "progression " + ((kk + 1) * (k + 1) * (j + 1) * (i + 1)) / (tmpTourYear.tourYear[k].match.length * tmpTourYear.tourYear.length * linkYears.length * tourUrl.length) * 100 + "%";
+            var progression = " , progression " + ((kk + 1) * (k + 1) * (j + 1) * (i + 1)) / (tmpTourYear.tourYear[k].match.length * tmpTourYear.tourYear.length * linkYears.length * tourUrl.length) * 100 + "%";
             console.log("==> get match ID:", tmpTourYear.tourYear[k].match[kk].id, progression);
 
-            page.waitFor(1000); // wait for stabilization
+            await page.waitFor(delay_waitFor); // wait for stabilization
 
             //get info match
             try {
@@ -74,6 +91,7 @@ const ftour = require('./tour_evaluate.js');
                 return (document.querySelector("li#li-match-statistics") ? true : false )
               })
               if (tmpLi) {
+                await page.waitFor(200); // wait for stabilization
                 await page.waitForSelector("#tab-match-statistics .ifmenu");
                 tmpTourYear.tourYear[k].match[kk].stats = await page.evaluate(ft.stats);
               }
@@ -83,6 +101,7 @@ const ftour = require('./tour_evaluate.js');
                 return (document.querySelector("li#li-match-odds-comparison") ? true : false )
               })
               if (tmpLi) {
+                await page.waitFor(200); // wait for stabilization
                 await page.waitForSelector("#tab-match-odds-comparison .ifmenu");
                 tmpTourYear.tourYear[k].match[kk].odds = await page.evaluate(ft.odds);
               }
@@ -92,11 +111,13 @@ const ftour = require('./tour_evaluate.js');
                 return (document.querySelector("li#li-match-history") ? true : false )
               })
               if (tmpLi) {
+                await page.waitFor(200); // wait for stabilization
                 await page.waitForSelector("#tab-match-history .ifmenu");
                 tmpTourYear.tourYear[k].match[kk].point = await page.evaluate(ft.point);
               }
               tmpTourYear.tourYear[k].match[kk].state = "ok"
             } catch (e) {
+              FlagError = true;
               console.log("=== ERROR START ===");
               console.log("--> INFO : ", e);
               console.log("--> JSON :");
@@ -107,11 +128,17 @@ const ftour = require('./tour_evaluate.js');
             }
           }
         } // while match
-        tmpTour.tour.push(tmpTourYear);
+        if (FlagError) {
+          tmpTourYear.state = "ok";
+        } else {
+          //save jsondb into redis
+          process.exit();
+        }
+        jsondb.tournament[tmpTour.tournamentName][tmpTourYear.year] = tmpTourYear;
       } // while years
     } // while years
-    jsondb.dataset.push(tmpTour);
-    console.log("Progression : ", i / elements.length * 100, "%");
+    jsondb.tournament[tmpTour.tournamentName].state = "ok";
+    console.log("=> Progression tournament: ", i / elements.length * 100, "%");
   }
 
   await browser.close();
