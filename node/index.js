@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const models  = require('./models');
 const ft = require('./match_evaluate.js');
+const ftour = require('./tour_evaluate.js');
 
 (async () => {
   const browser = await puppeteer.launch();
@@ -9,13 +10,7 @@ const ft = require('./match_evaluate.js');
   await page.setViewport({width: 1366, height: 768});
 
   // GET all tournament URL
-  const elements = await page.evaluate(() => {
-    let elements = Array.from(document.querySelector("li#lmenu_5724").querySelector("ul.submenu").querySelectorAll("a"));
-    let links = elements.map(element => {
-      return [ element.href, element.innerText ]
-    });
-    return links;
-  })
+  const tourUrl = await page.evaluate(ftour.tourUrl)
 
   // Create jsondb Object
   let jsondb = {};
@@ -23,11 +18,12 @@ const ft = require('./match_evaluate.js');
   jsondb.date = Date.now();
 
   // While on each tournament
-  for (let i in elements) {
+  for (let i in tourUrl) {
     let tmpTour = {};
-    tmpTour.tournamentName = elements[i][1];
-    tmpTour.tournamentUrl = elements[i][0];
+    tmpTour.tournamentName = tourUrl[i][1];
+    tmpTour.tournamentUrl = tourUrl[i][0];
     tmpTour.tour = [];
+
 
     // ICI exporter la creation des donnees dans la base a la fin de la generation du json
     // Save le Json dans un fichier a la fin
@@ -41,80 +37,81 @@ const ft = require('./match_evaluate.js');
     // let tournamentId = event.dataValues.id;
 
     // Get all URL per years
-    await page.goto(elements[i][0] + 'archive/');
-    const linkYears = await page.evaluate(() => {
-      let elements = Array.from(document.querySelector(".tournament-page-archiv").querySelectorAll("a"));
-      let links = elements.map((element, index) => {
-        return [ (index % 2 == 0 ? element.href : null),
-          /(19[5-9]\d|20[0-4]\d|2050)$/.exec(element.innerText) ];
-      });
-      return links;
-    });
+    await page.goto(tmpTour.tournamentUrl + 'archive/');
+    const linkYears = await page.evaluate(ftour.linkYears);
 
     // While on each tournament archive per year
     for (let j in linkYears) {
-      if (linkYears[j][0]) {
+      if (linkYears[j]) {
         let tmpTourYear = {};
         tmpTourYear.year = linkYears[j][1];
+        console.log("====> Tournament:", tmpTour.tournamentName, ", Year:", tmpTourYear.year);
 
         // Get Resultat table only
         await page.goto(linkYears[j][0] + 'results/');
 
         //parse each <tr> in table
-        tmpTourYear.tourYear = await page.evaluate(() => {
-
-          //display all match
-          loadMoreGames();
-          loadMoreGames();
-
-
-          var retu = [];
-          //Warning querySelectorAll return n+1 cases : n element and the length
-          var arrayTable = document.querySelectorAll("table.tennis");
-          arrayTable.forEach((atVal) => {
-            var tmp = {};
-            var roun = "";
-            tmp.qualification = atVal.querySelector("thead").innerText.includes("Qualification");
-            tmp.surface = atVal.querySelector("thead").innerText.split(', ')[1].slice(0, -1);
-            tmp.match = [];
-            var arrayTableMatch = atVal.querySelectorAll("tbody tr");
-            arrayTableMatch.forEach((atmVal) => {
-              if (!atmVal.id) {
-                roun = atmVal.innerText;
-              } else {
-                tmp.match.push({round: roun, id: atmVal.id.split('_')[2]});
-              }
-            });
-            retu.push(tmp);
-          });
-          return retu;
-        });
+        tmpTourYear.tourYear = await page.evaluate(ftour.tourYears);
 
         // Scrap all data on each match ID
         for (let k in tmpTourYear.tourYear) {
           for (let kk in tmpTourYear.tourYear[k].match) {
             await page.goto("https://www.flashscore.com/match/" + tmpTourYear.tourYear[k].match[kk].id);
-            //download data belongs to api flashscore
-            await page.evaluate(() => {
-              detail_tab('odds-comparison');
-              detail_tab('statistics');
-              detail_tab('match-history');
-              detail_tab('summary');
-            });
-            //wait download data
-            await page.waitForSelector("#tab-match-statistics .ifmenu");
-            await page.waitForSelector("#tab-match-history .ifmenu");
-            await page.waitForSelector("#tab-match-odds-comparison .ifmenu");
+            var progression = "progression " + ((kk + 1) * (k + 1) * (j + 1) * (i + 1)) / (tmpTourYear.tourYear[k].match.length * tmpTourYear.tourYear.length * linkYears.length * tourUrl.length) * 100 + "%";
+            console.log("==> get match ID:", tmpTourYear.tourYear[k].match[kk].id, progression);
+
+            page.waitFor(1000); // wait for stabilization
+
             //get info match
-            var score = await page.evaluate(ft.score);
-            var stats = await page.evaluate(ft.stats);
-            console.log(stats);
+            try {
+              var tmpLi;
+
+              tmpTourYear.tourYear[k].match[kk].score = await page.evaluate(ft.score);
+              tmpTourYear.tourYear[k].match[kk].player = await page.evaluate(ft.player);
+
+              tmpLi = await page.evaluate(() => {
+                detail_tab('statistics');
+                return (document.querySelector("li#li-match-statistics") ? true : false )
+              })
+              if (tmpLi) {
+                await page.waitForSelector("#tab-match-statistics .ifmenu");
+                tmpTourYear.tourYear[k].match[kk].stats = await page.evaluate(ft.stats);
+              }
+
+              tmpLi = await page.evaluate(() => {
+                detail_tab('odds-comparison');
+                return (document.querySelector("li#li-match-odds-comparison") ? true : false )
+              })
+              if (tmpLi) {
+                await page.waitForSelector("#tab-match-odds-comparison .ifmenu");
+                tmpTourYear.tourYear[k].match[kk].odds = await page.evaluate(ft.odds);
+              }
+
+              tmpLi = await page.evaluate(() => {
+                detail_tab('match-history');
+                return (document.querySelector("li#li-match-history") ? true : false )
+              })
+              if (tmpLi) {
+                await page.waitForSelector("#tab-match-history .ifmenu");
+                tmpTourYear.tourYear[k].match[kk].point = await page.evaluate(ft.point);
+              }
+              tmpTourYear.tourYear[k].match[kk].state = "ok"
+            } catch (e) {
+              console.log("=== ERROR START ===");
+              console.log("--> INFO : ", e);
+              console.log("--> JSON :");
+              console.log(tmpTourYear.tourYear[k].match[kk]);
+              console.log("=== ERROR END ===");
+              tmpTourYear.tourYear[k].match[kk].state = "ERROR"
+              tmpTourYear.tourYear[k].match[kk].error = e
+            }
           }
         } // while match
         tmpTour.tour.push(tmpTourYear);
       } // while years
     } // while years
     jsondb.dataset.push(tmpTour);
+    console.log("Progression : ", i / elements.length * 100, "%");
   }
 
   await browser.close();
