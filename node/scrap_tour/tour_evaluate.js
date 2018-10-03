@@ -37,7 +37,21 @@ module.exports = {
         if (!atmVal.id) {
           roun = atmVal.innerText;
         } else {
-          tmp.match.push({round: roun, id: atmVal.id.split('_')[2]});
+          //parsing Date
+          var date = atmVal.querySelector("td.time").innerText;
+          var month = date.split('.')[1];
+          var day = date.split('.')[0];
+          var hour = date.split('. ')[1].split(':')[0];
+          var min = date.split('. ')[1].split(':')[1];
+          // add to array Match
+          tmp.match.push({
+            round: roun,
+            id: atmVal.id.split('_')[2],
+            month: month,
+            day: day,
+            hour: hour,
+            min: min
+          });
         }
       });
       retu.push(tmp);

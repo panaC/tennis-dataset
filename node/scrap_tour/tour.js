@@ -87,6 +87,10 @@ async function getTour(tournamentName, tournamentUrl) {
                   qualification: tourYear[k].qualification,
                   surface: tourYear[k].surface,
                   year: year,
+                  dateTime: Date.UTC(year, tourYear[k].match[kk].month,
+                    tourYear[k].match[kk].day,
+                    tourYear[k].match[kk].hour,
+                    tourYear[k].match[kk].min),
                   data: jsonMatch,
                 }, {
                   flashscoreId: flashscoreId

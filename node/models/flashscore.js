@@ -29,6 +29,9 @@ module.exports = (sequelize, DataType) => {
     year: {
       type: DataType.INTEGER
     },
+    dateTime: {
+      type: DataType.DATE
+    },
     data: {
       type: DataType.JSONB
     }
