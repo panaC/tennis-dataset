@@ -3,7 +3,7 @@ const ftour       = require('./tour_evaluate.js');
 const match       = require('./../scrap_match/match')
 const puppeteer   = require('puppeteer');
 const models      = require('./../models');
-const dbTools     = require('./../tools/db_tool');
+const dbTools     = require('./../tools/db_tools');
 
 
 // Fields  :
@@ -42,13 +42,10 @@ async function getTour(tournamentName, tournamentUrl) {
     if (linkYears[j]) {
       var year = linkYears[j][1];
       var linkTour = linkYears[j][0];
-      console.log("==> Tournament:", tournamentName, ", Year:", year);
 
       // Get Resultat table only
       await page.goto(linkTour + 'results/');
-
       await page.waitFor(config.delay_waitForG); // wait for stabilization
-
       //parse each <tr> in table
       tourYear = await page.evaluate(ftour.tourYears);
 
@@ -62,6 +59,8 @@ async function getTour(tournamentName, tournamentUrl) {
           // All the data is available at this point
           // TODO : Add parsing dateTime
 
+          console.log("===> New MatchId", flashscoreId);
+
           try {
             var db_head = await models.head.findOne({
               where: {
@@ -69,15 +68,16 @@ async function getTour(tournamentName, tournamentUrl) {
               }
             });
 
-            if (!(db_head && db_head.dataValues.stateFlashscore == "ok")) {
+            if (db_head == null || db_head.dataValues.stateFlashscore != "ok") {
               try {
                 // scraping match
                 var jsonMatch = await match.getMatch(flashscoreId);
                 if (jsonMatch.state == "ERROR") {
                   throw "JsonMatch is unvalid : " + jsonMatch.error;
                 }
+                console.log("===> JsonMatch : OK");
                 //Update or Create in flashscore table
-                upsert("flashscore", {
+                dbTools.upsert("flashscore", {
                   state: "ok",
                   matchUrl: matchUrl,
                   tournamentUrl: tournamentUrl,
@@ -93,21 +93,22 @@ async function getTour(tournamentName, tournamentUrl) {
                 });
               } catch(e) {
                 res[flashscoreId] = e;
+                console.error("ERROR tour.js", e);
                 continue;
               }
-
-              if (!db_head || db_head.dataValues.stateFlashscore != "ok") {
-                //Update or Create in head table
-                upsert("head", {
-                  flashscoreId: flashscoreId,
-                  stateFlashscore: "ok"
-                }, {
-                  flashscoreId: flashscoreId
-                })
-              }
+              console.log("===> db flashscore : OK");
+              //Update or Create in head table
+              dbTools.upsert("head", {
+                flashscoreId: flashscoreId,
+                stateFlashscore: "ok"
+              }, {
+                flashscoreId: flashscoreId
+              })
+              console.log("===> db head : OK");
             } // IF db_head doesn't exist
           } catch(e) {
             res[flashscoreId] = e;
+            console.error("ERROR tour.js", e);
           }
         }
       }
@@ -115,6 +116,7 @@ async function getTour(tournamentName, tournamentUrl) {
   } // while years
 
   await browser.close();
+  await models.Sequelize.close();
 
   return res;
 }

@@ -1,6 +1,6 @@
-const models      = require('./models');
+const models      = require('./../models');
 
-exports.module.upsert = function upsert(table, values, condition) {
+module.exports.upsert = function upsert(table, values, condition) {
     return models[table]
         .findOne({ where: condition })
         .then(function(obj) {
@@ -10,6 +10,5 @@ exports.module.upsert = function upsert(table, values, condition) {
             else { // insert
                 return models[table].create(values);
             }
-        }
-    })
-}
+        });
+    };
