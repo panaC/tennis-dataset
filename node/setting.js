@@ -4,13 +4,16 @@ models.sequelize
   .authenticate()
   .then(() => {
     console.log('Connection has been established successfully.');
-    models.tournament.sync({force: true}).then(() => {
-      console.log('Table tournament created.');
-      models.match.sync({force: true}).then(() => {
-        console.log('Table match created.');
+    models.head.sync({force: true}).then(() => {
+      console.log('Table head created.');
+      models.flashscore.sync({force: true}).then(() => {
+        console.log('Tasble flashscore created.');
         models.player.sync({force: true}).then(() => {
           console.log('Table player created.');
-          models.sequelize.close()
+          models.weather.sync({force: true}).then(() => {
+            console.log('Table weather created.');
+            models.sequelize.close();
+          });
         });
       });
     });
