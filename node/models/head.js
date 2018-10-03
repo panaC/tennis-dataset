@@ -21,13 +21,13 @@ module.exports = (sequelize, DataType) => {
       type: DataType.STRING
     },
     homeId: {
-      type: DataType.INTEGER
+      type: DataType.STRING
     },
     stateHome: {
       type: DataType.STRING
     },
     awayId: {
-      type: DataType.INTEGER
+      type: DataType.STRING
     },
     stateAway: {
       type: DataType.STRING

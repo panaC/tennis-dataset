@@ -2,20 +2,23 @@
 module.exports = (sequelize, DataType) => {
 
   var player = sequelize.define('player', {
-    flashscoreId: {
+    state: {
       type: DataType.STRING
     },
-    flashscoreUrl: {
+    playerId: {
       type: DataType.STRING
     },
-    name: {
+    playerUrl: {
       type: DataType.STRING
     },
-    rank: {
-      type: DataType.INTEGER
+    fullName: {
+      type: DataType.STRING
     },
     age: {
-      type: DataType.INTEGER
+      type: DataType.DATE
+    },
+    country: {
+      type: DataType.STRING
     },
     hand: {
       //left - right

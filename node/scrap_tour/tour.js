@@ -57,7 +57,6 @@ async function getTour(tournamentName, tournamentUrl) {
           var matchUrl = config.match + flashscoreId;
           // create new line Table HEAD and flashscore
           // All the data is available at this point
-          // TODO : Add parsing dateTime
 
           console.log("===> New MatchId", flashscoreId);
 
@@ -75,7 +74,19 @@ async function getTour(tournamentName, tournamentUrl) {
                 if (jsonMatch.state == "ERROR") {
                   throw "JsonMatch is unvalid : " + jsonMatch.error;
                 }
-                console.log("===> JsonMatch : OK");
+
+                var idHome = jsonMatch.player.home.playerID;
+                var home = getPlayer(jsonMatch.player.home.playerURL,
+                  idHome, jsonMatch.player.home.playerCountry);
+                var idAway = jsonMatch.player.away.playerID;
+                var away = getPlayer(jsonMatch.player.away.playerURL,
+                  idAway, jsonMatch.player.away.playerCountry);
+                if (home.state != "ok") {
+                  throw "getPlayer Home is unvalid : " + home.error
+                } else if (away.state != "ok") {
+                  throw "getPlayer Away is unvalid : " + away.error
+                }
+
                 //Update or Create in flashscore table
                 dbTools.upsert("flashscore", {
                   state: "ok",
@@ -100,15 +111,17 @@ async function getTour(tournamentName, tournamentUrl) {
                 console.error("ERROR tour.js", e);
                 continue;
               }
-              console.log("===> db flashscore : OK");
               //Update or Create in head table
               dbTools.upsert("head", {
                 flashscoreId: flashscoreId,
+                homeId: idHome,
+                stateHome: "ok",
+                awayId: idAway,
+                stateAway: "ok",
                 stateFlashscore: "ok"
               }, {
                 flashscoreId: flashscoreId
               })
-              console.log("===> db head : OK");
             } // IF db_head doesn't exist
           } catch(e) {
             res[flashscoreId] = e;
