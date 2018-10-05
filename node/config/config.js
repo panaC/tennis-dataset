@@ -17,6 +17,7 @@ module.exports = {
     match: "https://www.flashscore.com/match/",
     topUrl: "https://www.flashscore.com/tennis/",
     rootUrl: "https://www.flashscore.com",
+    weather: "https://api.weather.com/v1/geocode/{0}/{1}/observations/historical.json?apiKey=6532d6454b8aa370768e63d6ba5a832e&startDate={2}&endDate={2}&units=e",
     geonames: "panacpp",
     delay_waitForG: 1000,
     delay_waitForP: 200,

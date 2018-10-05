@@ -3,6 +3,7 @@ const puppeteer   = require('puppeteer');
 const models      = require('./../models');
 const dbTools     = require('./../tools/db_tools');
 const geocoder    = require('geocoder');
+const getJson     = require('get-json');
 
 geocoder.selectProvider("geonames", {
   "username": config.geonames
