@@ -16,6 +16,8 @@ module.exports = {
   setting: {
     match: "https://www.flashscore.com/match/",
     topUrl: "https://www.flashscore.com/tennis/",
+    rootUrl: "https://www.flashscore.com",
+    geonames: "panacpp",
     delay_waitForG: 1000,
     delay_waitForP: 200,
     dim_screen: {width: 1366, height: 768},

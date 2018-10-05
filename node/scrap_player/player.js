@@ -22,11 +22,12 @@ async function getPlayer(linkPlayer, idPlayer, countryPlayer) {
       where: {
         playerId: idPlayer
       }
+    });
     if (db_player == null) {
       var player = await page.evaluate(evaluate.player);
 
       // create line in db player table
-      dbTools.upsert("player", {
+      await dbTools.upsert("player", {
         state: "ok",
         playerId: idPlayer,
         playerUrl: linkPlayer,
@@ -44,13 +45,19 @@ async function getPlayer(linkPlayer, idPlayer, countryPlayer) {
   }
 
   await browser.close();
-  await models.Sequelize.close()
+  //await models.sequelize.close();
 
   return res;
 }
 
-module.exports = getPlayer;
+module.exports.getPlayer = getPlayer;
 
 if (typeof require != 'undefined' && require.main == module) {
+  getPlayer(process.argv[2] || "https://www.flashscore.com/player/anderson-kevin/2Nq3ecTS/",
+      process.argv[3] ||  "2Nq3ecTS", process.argv[4] || "Rsa")
+      .then(data => {
+        console.log(data);
+        models.sequelize.close();
+      });
 
 }

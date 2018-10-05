@@ -12,7 +12,10 @@ models.sequelize
           console.log('Table player created.');
           models.weather.sync({force: true}).then(() => {
             console.log('Table weather created.');
-            models.sequelize.close();
+            models.gps.sync({force: true}).then(() => {
+              console.log('Table gps created.');
+              models.sequelize.close();
+            });
           });
         });
       });

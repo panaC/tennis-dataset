@@ -9,6 +9,7 @@
   "author": "pleroux",
   "license": "ISC",
   "dependencies": {
+    "geocoder": "git+https://github.com/panaC/geocoder.git",
     "pg": "^7.4.3",
     "pg-hstore": "^2.3.2",
     "puppeteer": "^1.7.0",

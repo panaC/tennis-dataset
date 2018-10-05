@@ -1,6 +1,7 @@
 const config      = require(__dirname + '/../config/config.js')["setting"];
 const ftour       = require('./tour_evaluate.js');
-const match       = require('./../scrap_match/match')
+const match       = require('./../scrap_match/match');
+const player      = require('./../scrap_player/player');
 const puppeteer   = require('puppeteer');
 const models      = require('./../models');
 const dbTools     = require('./../tools/db_tools');
@@ -58,8 +59,6 @@ async function getTour(tournamentName, tournamentUrl) {
           // create new line Table HEAD and flashscore
           // All the data is available at this point
 
-          console.log("===> New MatchId", flashscoreId);
-
           try {
             var db_head = await models.head.findOne({
               where: {
@@ -76,11 +75,11 @@ async function getTour(tournamentName, tournamentUrl) {
                 }
 
                 var idHome = jsonMatch.player.home.playerID;
-                var home = getPlayer(jsonMatch.player.home.playerURL,
-                  idHome, jsonMatch.player.home.playerCountry);
+                var UrlHome = config.rootUrl + jsonMatch.player.home.playerURL;
+                var home = await player.getPlayer(UrlHome, idHome, jsonMatch.player.home.playerCountry);
                 var idAway = jsonMatch.player.away.playerID;
-                var away = getPlayer(jsonMatch.player.away.playerURL,
-                  idAway, jsonMatch.player.away.playerCountry);
+                var UrlAway = config.rootUrl + jsonMatch.player.away.playerURL;
+                var away = await player.getPlayer(UrlAway, idAway, jsonMatch.player.away.playerCountry);
                 if (home.state != "ok") {
                   throw "getPlayer Home is unvalid : " + home.error
                 } else if (away.state != "ok") {
@@ -88,7 +87,7 @@ async function getTour(tournamentName, tournamentUrl) {
                 }
 
                 //Update or Create in flashscore table
-                dbTools.upsert("flashscore", {
+                await dbTools.upsert("flashscore", {
                   state: "ok",
                   matchUrl: matchUrl,
                   tournamentUrl: tournamentUrl,
@@ -96,6 +95,8 @@ async function getTour(tournamentName, tournamentUrl) {
                   tournamentName: tournamentName,
                   round: tourYear[k].match[kk].round,
                   qualification: tourYear[k].qualification,
+                  indoor: tourYear[k].indoor,
+                  country: tourYear[k].country,
                   surface: tourYear[k].surface,
                   year: year,
                   dateTime: Date.UTC(year, tourYear[k].match[kk].month,
@@ -112,7 +113,7 @@ async function getTour(tournamentName, tournamentUrl) {
                 continue;
               }
               //Update or Create in head table
-              dbTools.upsert("head", {
+              await dbTools.upsert("head", {
                 flashscoreId: flashscoreId,
                 homeId: idHome,
                 stateHome: "ok",
@@ -133,7 +134,7 @@ async function getTour(tournamentName, tournamentUrl) {
   } // while years
 
   await browser.close();
-  await models.Sequelize.close();
+  //await models.sequelize.close();
 
   return res;
 }
@@ -144,5 +145,6 @@ if (typeof require != 'undefined' && require.main == module) {
   getTour(process.argv[2] || "acapulco", process.argv[3] || "https://www.flashscore.com/tennis/atp-singles/acapulco/")
       .then(data => {
         console.log(data);
+        models.sequelize.close();
       });
 }

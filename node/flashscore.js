@@ -5,6 +5,8 @@ const jsonTools   = require('./tools/json_tools');
 const ftour       = require('./scrap_tour/tour_evaluate')
 const timestamp   = Date.now();
 const filename    = __dirname + '/log.json';
+const models      = require('./models');
+
 let json = {};
 
 process.on('SIGINT', () => {
@@ -65,5 +67,9 @@ module.exports.flashscore = flashscore;
 
 // Main entry
 if (typeof require != 'undefined' && require.main == module) {
-  flashscore();
+  flashscore().then(() => {
+    models.sequelize.close();
+  }).catch(() => {
+    models.sequelize.close();
+  });
 }

@@ -23,7 +23,13 @@ module.exports = (sequelize, DataType) => {
     qualification: {
       type: DataType.BOOLEAN
     },
+    indoor: {
+      type: DataType.BOOLEAN
+    },
     surface: {
+      type: DataType.STRING
+    },
+    country: {
       type: DataType.STRING
     },
     year: {

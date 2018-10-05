@@ -26,11 +26,22 @@ module.exports = {
     var retu = [];
     //Warning querySelectorAll return n+1 cases : n element and the length
     var arrayTable = document.querySelectorAll("table.tennis");
+
     arrayTable.forEach((atVal) => {
+
       var tmp = {};
       var roun = "";
-      tmp.qualification = atVal.querySelector("thead").innerText.includes("Qualification");
-      tmp.surface = atVal.querySelector("thead").innerText.split(', ')[1].slice(0, -1);
+      var headline = atVal.querySelector("thead").innerText;
+      tmp.qualification = headline.includes("Qualification");
+      if (headline.includes("Davis Cup")) {
+        tmp.surface = "hard";
+        tmp.country = "World";
+        tmp.indoor = true;
+      } else {
+        tmp.surface = headline.split(', ')[1].slice(0, -1);
+        tmp.country = /.*\((.*)\).*, (.*) .*/.exec(headline.slice(0, -1) + " ")[1];
+        tmp.indoor = headline.includes("indoor");
+      }
       tmp.match = [];
       var arrayTableMatch = atVal.querySelectorAll("tbody tr");
       arrayTableMatch.forEach((atmVal) => {
