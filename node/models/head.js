@@ -9,13 +9,13 @@ module.exports = (sequelize, DataType) => {
       type: DataType.STRING
     },
     weatherId: {
-      type: DataType.INTEGER
+      type: DataType.STRING
     },
     stateWeather: {
       type: DataType.STRING
     },
     bookmakerId: {
-      type: DataType.INTEGER
+      type: DataType.STRING
     },
     stateBookmaker: {
       type: DataType.STRING
@@ -30,6 +30,12 @@ module.exports = (sequelize, DataType) => {
       type: DataType.STRING
     },
     stateAway: {
+      type: DataType.STRING
+    },
+    datasetId: {
+      type: DataType.STRING
+    },
+    stateDataset: {
       type: DataType.STRING
     },
     log: {

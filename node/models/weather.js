@@ -2,9 +2,9 @@
 module.exports = (sequelize, DataType) => {
 
   var weather = sequelize.define('weather', {
-    /*weatherId: {
+    weatherId: {
       type: DataType.STRING
-    },*/
+    },
     weatherUrl: {
       type: DataType.STRING
     },
@@ -12,6 +12,12 @@ module.exports = (sequelize, DataType) => {
       type: DataType.STRING
     },
     temp: {
+      type: DataType.FLOAT
+    },
+    press: {
+      type: DataType.FLOAT
+    },
+    humid: {
       type: DataType.FLOAT
     },
     time: {

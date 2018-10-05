@@ -3,7 +3,6 @@ const puppeteer   = require('puppeteer');
 const models      = require('./../models');
 const dbTools     = require('./../tools/db_tools');
 const geocoder    = require('geocoder');
-const getJson     = require('get-json');
 
 geocoder.selectProvider("geonames", {
   "username": config.geonames
@@ -75,8 +74,8 @@ async function getGPS(loc) {
   if (tmp == null) {
     var set = await setGPS(checkLoc(loc));
     if (set.state == "ok") {
-      res.long = res.long;
-      res.lat = res.lat;
+      res.long = set.long;
+      res.lat = set.lat;
     } else {
       res.state = set.state;
       if (set.state == "ERROR") {

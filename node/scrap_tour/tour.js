@@ -5,7 +5,7 @@ const player      = require('./../scrap_player/player');
 const puppeteer   = require('puppeteer');
 const models      = require('./../models');
 const dbTools     = require('./../tools/db_tools');
-
+const weather     = require('./../scrap_weather/weather');
 
 // Fields  :
 /*  - linkTour
@@ -86,6 +86,17 @@ async function getTour(tournamentName, tournamentUrl) {
                   throw "getPlayer Away is unvalid : " + away.error
                 }
 
+                var date = Date.UTC(year, tourYear[k].match[kk].month,
+                              tourYear[k].match[kk].day,
+                              tourYear[k].match[kk].hour,
+                              tourYear[k].match[kk].min);
+
+                var jsonWeather = await weather.setWeather(tournamentName,
+                                          tourYear[k].country, date);
+                if (jsonWeather.state == "ERROR") {
+                  throw "setWeather is unvalid " + weather.error;
+                }
+
                 //Update or Create in flashscore table
                 await dbTools.upsert("flashscore", {
                   state: "ok",
@@ -99,10 +110,7 @@ async function getTour(tournamentName, tournamentUrl) {
                   country: tourYear[k].country,
                   surface: tourYear[k].surface,
                   year: year,
-                  dateTime: Date.UTC(year, tourYear[k].match[kk].month,
-                    tourYear[k].match[kk].day,
-                    tourYear[k].match[kk].hour,
-                    tourYear[k].match[kk].min),
+                  dateTime: date,
                   data: jsonMatch,
                 }, {
                   flashscoreId: flashscoreId
@@ -119,7 +127,9 @@ async function getTour(tournamentName, tournamentUrl) {
                 stateHome: "ok",
                 awayId: idAway,
                 stateAway: "ok",
-                stateFlashscore: "ok"
+                stateFlashscore: "ok",
+                weatherId: jsonWeather.hash,
+                stateWeather: "ok"
               }, {
                 flashscoreId: flashscoreId
               })
