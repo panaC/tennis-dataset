@@ -69,7 +69,8 @@ module.exports.flashscore = flashscore;
 if (typeof require != 'undefined' && require.main == module) {
   flashscore().then(() => {
     models.sequelize.close();
-  }).catch(() => {
+  }).catch((e) => {
+    console.error("ERROR:", e);
     models.sequelize.close();
   });
 }

@@ -38,6 +38,15 @@ module.exports = (sequelize, DataType) => {
     stateDataset: {
       type: DataType.STRING
     },
+    injuriesId: {
+      type: DataType.STRING
+    },
+    stateInjuries: {
+      type: DataType.STRING
+    },
+    option: {
+      type: DataType.JSONB
+    },
     log: {
       type: DataType.JSONB
     }

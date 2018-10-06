@@ -22,15 +22,26 @@ async function getMatch(matchId) {
   try {
     var tmpLi;
 
-    res.score = await page.evaluate(ft.score);
+    res.mstat = await page.evaluate(() => {
+      return document.querySelector("div.info-status.mstat").innerText;
+    });
+
     res.player = await page.evaluate(ft.player);
+
+    tmpLi = await page.evaluate(() => {
+      return (document.querySelector("div#summary-content div.parts-wrapper") ? true : false )
+    })
+    if (tmpLi) {
+      await page.waitFor(config.delay_waitForP); // wait for stabilization
+      res.score = await page.evaluate(ft.score);
+    }
 
     tmpLi = await page.evaluate(() => {
       detail_tab('statistics');
       return (document.querySelector("li#li-match-statistics") ? true : false )
     })
     if (tmpLi) {
-      await page.waitFor(200); // wait for stabilization
+      await page.waitFor(config.delay_waitForP); // wait for stabilization
       await page.waitForSelector("#tab-match-statistics .ifmenu");
       res.stats = await page.evaluate(ft.stats);
     }
@@ -40,17 +51,18 @@ async function getMatch(matchId) {
       return (document.querySelector("li#li-match-odds-comparison") ? true : false )
     })
     if (tmpLi) {
-      await page.waitFor(200); // wait for stabilization
+      await page.waitFor(config.delay_waitForP); // wait for stabilization
       await page.waitForSelector("#tab-match-odds-comparison .ifmenu");
       res.odds = await page.evaluate(ft.odds);
     }
 
     tmpLi = await page.evaluate(() => {
       detail_tab('match-history');
-      return (document.querySelector("li#li-match-history") ? true : false )
+      return ((document.querySelector("li#li-match-history") ? true : false ) &&
+        (document.querySelector("div.match-history-content div.tab-mhistory-1-history") ? true : false))
     })
     if (tmpLi) {
-      await page.waitFor(200); // wait for stabilization
+      await page.waitFor(config.delay_waitForP); // wait for stabilization
       await page.waitForSelector("#tab-match-history .ifmenu");
       res.point = await page.evaluate(ft.point);
     }

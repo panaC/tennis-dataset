@@ -81,9 +81,9 @@ async function getTour(tournamentName, tournamentUrl) {
                 var UrlAway = config.rootUrl + jsonMatch.player.away.playerURL;
                 var away = await player.getPlayer(UrlAway, idAway, jsonMatch.player.away.playerCountry);
                 if (home.state != "ok") {
-                  throw "getPlayer Home is unvalid : " + home.error
+                  throw "getPlayer Home is unvalid :" + idHome + ": " + home.error
                 } else if (away.state != "ok") {
-                  throw "getPlayer Away is unvalid : " + away.error
+                  throw "getPlayer Away is unvalid :" + idAway + ": " + away.error
                 }
 
                 var date = Date.UTC(year, tourYear[k].match[kk].month,

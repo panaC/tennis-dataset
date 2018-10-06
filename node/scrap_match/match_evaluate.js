@@ -45,27 +45,30 @@ module.exports = {
   player: function () {
 
     function getPlayer(el) {
-      let tmpOnclick = el.querySelector("td.fl.summary-horizontal a").attributes.onclick.value;
+      let tmpOnclick = el.querySelector("div.team-text a").attributes.onclick.value;
       //regexp on onclick value capture between quote and under quote both name and id
-      var tmpRegexp = /(\/.*\/(.*)\/(.*)\/)/.exec(tmpOnclick);
+      var tmpRegexp = /(\/.*\/(.*)\/(.*))\'/.exec(tmpOnclick);
       var ret = {};
       ret.playerURL = tmpRegexp['1'];
       ret.playerID = tmpRegexp['3'];
       ret.playerName = tmpRegexp['2'];
 
-      //regexp on the same balise but only the name and country
-      var tmpRegexp = /(.*) \((.*)\)/.exec(el.querySelector("td.fl.summary-horizontal a").innerText);
-      ret.player = tmpRegexp['1'];
-      ret.playerCountry = tmpRegexp['2'];
+      ret.player = el.querySelector("div.team-text a").innerText;
+
+      try {
+        //regexp on the same balise but only the name and country
+        var tmpRegexp = /(.*) \((.*)\)/.exec(el.querySelector("td.fl.summary-horizontal a").innerText);
+        ret.playerCountry = tmpRegexp['2'];
+      } catch(e) {}
 
       return ret;
     }
 
     var player = {};
 
-    var el = document.querySelector("#tab-match-summary table#parts tr.odd");
+    var el = document.querySelector("div.home-box");
     player.home = getPlayer(el);
-    var el = document.querySelector("#tab-match-summary table#parts tr.even");
+    var el = document.querySelector("div.away-box");
     player.away = getPlayer(el);
 
     return player;
