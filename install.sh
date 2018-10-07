@@ -11,4 +11,8 @@ git clone https://github.com/panaC/tennis-scraper.git
 
 cd tennis-scraper/node
 npm install
+
+export NODE_ENV=production
+echo "export NODE_ENV=production" >> ~/.bashrc
+
 node flashscore.js
