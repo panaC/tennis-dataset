@@ -23,6 +23,12 @@ module.exports = (sequelize, DataType) => {
     hand: {
       //left - right
       type: DataType.STRING
+    },
+    data: {
+      type: DataType.JSONB
+    },
+    option: {
+      type: DataType.JSONB
     }
   });
 

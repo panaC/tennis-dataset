@@ -38,11 +38,13 @@ module.exports = (sequelize, DataType) => {
     dateTime: {
       type: DataType.DATE
     },
+    option: {
+      type: DataType.JSONB
+    },
     data: {
       type: DataType.JSONB
     }
   });
-  // TODO: ADD datetime field
 
   return flashscore;
 }

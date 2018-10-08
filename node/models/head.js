@@ -8,6 +8,12 @@ module.exports = (sequelize, DataType) => {
     stateFlashscore: {
       type: DataType.STRING
     },
+    atpWorldTourId: {
+      type: DataType.STRING
+    },
+    stateAtpWorldTour: {
+      type: DataType.STRING
+    },
     weatherId: {
       type: DataType.STRING
     },
