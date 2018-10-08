@@ -16,5 +16,3 @@ npm install
 
 export NODE_ENV=production
 echo "export NODE_ENV=production" >> ~/.bashrc
-
-node flashscore.js
