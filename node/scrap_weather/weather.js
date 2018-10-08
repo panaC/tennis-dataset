@@ -23,7 +23,11 @@ async function getWeather(long, lat, timestamp) {
     && res.json["observations"][0].temp) {
       res.temp = res.json["observations"][0].temp;
       res.pressure = res.json["observations"][0].pressure;
-      res.humidity = res.json["observations"][0].rh
+      res.humidity = res.json["observations"][0].rh;
+    } else if(res.json["success"] == false){
+      res.temp = null;
+      res.pressure = null;
+      res.humidity = null;
     } else {
       throw "getJson weather.com no observations data";
     }
