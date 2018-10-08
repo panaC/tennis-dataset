@@ -13,6 +13,13 @@ module.exports = {
     host: "10.164.0.2",
     dialect: 'postgres',
   },
+  prod_aws: {
+    username: "dataset",
+    password: "dataset1747",
+    database: "dataset-prod",
+    host: "35.204.62.91",
+    dialect: 'postgres',
+  },
   setting: {
     match: "https://www.flashscore.com/match/",
     topUrl: "https://www.flashscore.com/tennis/",
