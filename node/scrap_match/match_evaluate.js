@@ -55,7 +55,7 @@ module.exports = {
 
   player: function () {
 
-    function getPlayer(el) {
+    function getPlayer(el, elc) {
       try {
         let tmpOnclick = el.querySelector("div.team-text a").attributes.onclick.value;
         //regexp on onclick value capture between quote and under quote both name and id
@@ -68,9 +68,10 @@ module.exports = {
       try {
         ret.player = el.querySelector("div.team-text a").innerText;
       } catch(e) {}
+
       try {
         //regexp on the same balise but only the name and country
-        var tmpRegexp = /(.*) \((.*)\)/.exec(el.querySelector("td.fl.summary-horizontal a").innerText);
+        var tmpRegexp = /(.*) \((.*)\)/.exec(elc.querySelector("td.fl.summary-horizontal a").innerText);
         ret.playerCountry = tmpRegexp['2'];
       } catch(e) {}
 
@@ -81,11 +82,13 @@ module.exports = {
 
     try {
       var el = document.querySelector("div.home-box");
-      player.home = getPlayer(el);
+      var elc = document.querySelector("tr.odd");
+      player.home = getPlayer(el, elc);
     } catch(e) {}
     try {
       var el = document.querySelector("div.away-box");
-      player.away = getPlayer(el);
+      var elc = document.querySelector("tr.even");
+      player.away = getPlayer(el, elc);
     } catch (e) {}
 
     return player;
