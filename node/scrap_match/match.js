@@ -11,7 +11,6 @@ async function getMatch(page, matchId) {
   var res = {};
 
   await page.goto(config.match + matchId);
-  await page.waitForNavigation();
   await page.waitFor(config.delay_waitForG); // wait for stabilization
 
   //get info match

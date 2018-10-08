@@ -36,7 +36,6 @@ async function getTour(tournamentName, tournamentUrl) {
     await page.setViewport(config.dim_screen);
     // Get URL per years per tour
     await page.goto(tournamentUrl + 'archive/');
-    await page.waitForNavigation();
     await page.waitFor(config.delay_waitForG); // wait for stabilization
 
     const linkYears = await page.evaluate(ftour.linkYears);
