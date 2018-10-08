@@ -28,14 +28,15 @@ async function getTour(tournamentName, tournamentUrl) {
 
   var res = {};
 
-  try {
     // Lauch browser headless
     const browser = await puppeteer.launch();
+
+  try {
     var page = await browser.newPage();
     await page.setViewport(config.dim_screen);
     // Get URL per years per tour
     await page.goto(tournamentUrl + 'archive/');
-
+    await page.waitForNavigation();
     await page.waitFor(config.delay_waitForG); // wait for stabilization
 
     const linkYears = await page.evaluate(ftour.linkYears);
@@ -74,7 +75,10 @@ async function getTour(tournamentName, tournamentUrl) {
               if (db_head == null || db_head.dataValues.stateFlashscore != "ok") {
                 try {
                   // scraping match
-                  var jsonMatch = await match.getMatch(browser, flashscoreId);
+                  var page = await browser.newPage();
+                  var jsonMatch = await match.getMatch(page, flashscoreId);
+                  await page.close();
+
                   if (jsonMatch.state == "ERROR") {
                     throw "JsonMatch is unvalid : " + jsonMatch.error;
                   }
