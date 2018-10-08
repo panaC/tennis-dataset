@@ -39,6 +39,7 @@ async function getTour(tournamentName, tournamentUrl) {
 
   try {
     const linkYears = await page.evaluate(ftour.linkYears);
+    await browser.close();
 
     // While on each tournament archive per year
     for (let j in linkYears) {
@@ -46,11 +47,17 @@ async function getTour(tournamentName, tournamentUrl) {
         var year = linkYears[j][1];
         var linkTour = linkYears[j][0];
 
+        // Lauch browser headless
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.setViewport(config.dim_screen);
+
         // Get Resultat table only
         await page.goto(linkTour + 'results/');
         await page.waitFor(config.delay_waitForG); // wait for stabilization
         //parse each <tr> in table
         tourYear = await page.evaluate(ftour.tourYears);
+        await browser.close();
 
         // Scrap all data on each match ID
         for (let k in tourYear) {
@@ -149,7 +156,7 @@ async function getTour(tournamentName, tournamentUrl) {
     console.error("ERROR tour.js in", tournamentName, e);
   }
 
-  await browser.close();
+
   //await models.sequelize.close();
 
   return res;

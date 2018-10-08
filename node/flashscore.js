@@ -38,8 +38,9 @@ process.on('SIGINT', () => {
   await page.waitFor(config.delay_waitForG); // wait for stabilization
 
   try {
-    // GET all tournament URL
     const tourUrl = await page.evaluate(ftour.tourUrl)
+    await browser.close();
+    // GET all tournament URL
 
     // While on each tournament
     for (let i in tourUrl) {
@@ -59,7 +60,7 @@ process.on('SIGINT', () => {
 
   }
 
-  await browser.close();
+
   await jsonTools.writeJson(filename, json);
 }
 
