@@ -23,7 +23,11 @@ async function getMatch(matchId) {
     var tmpLi;
 
     res.mstat = await page.evaluate(() => {
-      return document.querySelector("div.info-status.mstat").innerText;
+      var dom = document.querySelector("div.info-status.mstat")
+      if (dom) {
+        return dom.innerText;
+      }
+      return null;
     });
 
     res.player = await page.evaluate(ft.player);
@@ -42,7 +46,9 @@ async function getMatch(matchId) {
     })
     if (tmpLi) {
       await page.waitFor(config.delay_waitForP); // wait for stabilization
-      await page.waitForSelector("#tab-match-statistics .ifmenu");
+      try {
+        await page.waitForSelector("#tab-match-statistics .statBox");
+      } catch(e) {}
       res.stats = await page.evaluate(ft.stats);
     }
 
@@ -52,7 +58,9 @@ async function getMatch(matchId) {
     })
     if (tmpLi) {
       await page.waitFor(config.delay_waitForP); // wait for stabilization
-      await page.waitForSelector("#tab-match-odds-comparison .ifmenu");
+      try {
+        await page.waitForSelector("#tab-match-odds-comparison .spacer-block");
+      } catch(e) {}
       res.odds = await page.evaluate(ft.odds);
     }
 
@@ -63,7 +71,9 @@ async function getMatch(matchId) {
     })
     if (tmpLi) {
       await page.waitFor(config.delay_waitForP); // wait for stabilization
-      await page.waitForSelector("#tab-match-history .ifmenu");
+      try {
+        await page.waitForSelector("#tab-match-history .ifmenu");
+      } catch(e) {}
       res.point = await page.evaluate(ft.point);
     }
     res.state = "ok"
