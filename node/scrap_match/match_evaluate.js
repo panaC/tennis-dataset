@@ -86,7 +86,7 @@ module.exports = {
     try {
       var el = document.querySelector("div.away-box");
       player.away = getPlayer(el);
-    }
+    } catch (e) {}
 
     return player;
   },
@@ -109,7 +109,7 @@ module.exports = {
               element.querySelector("div.statText.statText--titleValue").innerText] =
               element.querySelector("div.statText.statText--" + pos + "Value").innerText;
             }
-          })
+          });
       } catch(e) {}
 
       return ret;
@@ -155,7 +155,7 @@ module.exports = {
     try {
       tmp = document.querySelector("div#tab-statistics-4-statistic");
       stats.away.set4 = getStatsSet(tmp, "away");
-    } catch(e)
+    } catch(e) {}
     try {
       tmp = document.querySelector("div#tab-statistics-5-statistic");
       stats.away.set5 = getStatsSet(tmp, "away");
@@ -209,31 +209,33 @@ module.exports = {
 
       var tiebreak = 0;
 
-      selector.querySelectorAll("tr").forEach((element, index) => {
-        if (index > 0) {
-          if (element.attributes.class == undefined) {
-            ret.tiebreak = {}
-            tiebreak = index + 1;
+      try {
+        selector.querySelectorAll("tr").forEach((element, index) => {
+          if (index > 0) {
+            if (element.attributes.class == undefined) {
+              ret.tiebreak = {}
+              tiebreak = index + 1;
+            }
+            if (tiebreak > 0) {
+              if (element.querySelector("td.match-history-score")) {
+                ret.tiebreak[index - tiebreak] = element.querySelector("td.match-history-score").innerText;
+              }
+            } else {
+              if (ret[Math.trunc((index - 1) / 2)] == undefined) { ret[Math.trunc((index - 1) / 2)] = {}; }
+              if (element.querySelector("td.match-history-score")) {
+                ret[Math.trunc((index - 1) / 2)].homeAway = element.querySelector("td.match-history-score").innerText;
+              }
+              if (element.attributes.class.value == "odd fifteen" ||
+              element.attributes.class.value == "even fifteen") {
+                ret[Math.trunc((index - 1) / 2)].point = element.innerText;
+              }
+            }
           }
-          if (tiebreak > 0) {
-            if (element.querySelector("td.match-history-score")) {
-              ret.tiebreak[index - tiebreak] = element.querySelector("td.match-history-score").innerText;
-            }
-          } else {
-            if (ret[Math.trunc((index - 1) / 2)] == undefined) { ret[Math.trunc((index - 1) / 2)] = {}; }
-            if (element.querySelector("td.match-history-score")) {
-              ret[Math.trunc((index - 1) / 2)].homeAway = element.querySelector("td.match-history-score").innerText;
-            }
-            if (element.attributes.class.value == "odd fifteen" ||
-          element.attributes.class.value == "even fifteen") {
-              ret[Math.trunc((index - 1) / 2)].point = element.innerText;
-            }
-          }
-        }
-      })
-
+        })
+      } catch(e) {}
       return ret;
     }
+
     var point = {};
     var selector;
 

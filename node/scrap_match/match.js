@@ -66,8 +66,7 @@ async function getMatch(matchId) {
 
     tmpLi = await page.evaluate(() => {
       detail_tab('match-history');
-      return ((document.querySelector("li#li-match-history") ? true : false ) &&
-        (document.querySelector("div.match-history-content div.tab-mhistory-1-history") ? true : false))
+      return (document.querySelector("li#li-match-history") ? true : false )
     })
     if (tmpLi) {
       await page.waitFor(config.delay_waitForP); // wait for stabilization
