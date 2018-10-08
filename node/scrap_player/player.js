@@ -4,13 +4,13 @@ const models      = require('./../models');
 const evaluate    = require('./player_evaluate');
 const dbTools     = require('./../tools/db_tools');
 
-async function getPlayer(linkPlayer, idPlayer, countryPlayer) {
+async function getPlayer(page, linkPlayer, idPlayer, countryPlayer) {
   var res = {};
   res.state = "ok";
 
   // Lauch browser headless
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+  // const browser = await puppeteer.launch();
+  // const page = await browser.newPage();
   await page.setViewport(config.dim_screen);
   // Get URL per years per tour
   await page.goto(linkPlayer);
@@ -44,7 +44,6 @@ async function getPlayer(linkPlayer, idPlayer, countryPlayer) {
     console.error("ERROR tour.js", e);
   }
 
-  await browser.close();
   //await models.sequelize.close();
 
   return res;

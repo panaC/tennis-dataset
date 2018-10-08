@@ -29,7 +29,8 @@ async function getTour(tournamentName, tournamentUrl) {
   var res = {};
 
     // Lauch browser headless
-    const browser = await puppeteer.launch();
+    const browser_ = await puppeteer.launch();
+    const browser = await browser_.createIncognitoBrowserContext();
 
   try {
     var page = await browser.newPage();
@@ -76,7 +77,6 @@ async function getTour(tournamentName, tournamentUrl) {
                   // scraping match
                   var page = await browser.newPage();
                   var jsonMatch = await match.getMatch(page, flashscoreId);
-                  await page.close();
 
                   if (jsonMatch.state == "ERROR") {
                     throw "JsonMatch is unvalid : " + jsonMatch.error;
@@ -84,15 +84,17 @@ async function getTour(tournamentName, tournamentUrl) {
 
                   var idHome = jsonMatch.player.home.playerID;
                   var UrlHome = config.rootUrl + jsonMatch.player.home.playerURL;
-                  var home = await player.getPlayer(UrlHome, idHome, jsonMatch.player.home.playerCountry);
+                  var home = await player.getPlayer(page, UrlHome, idHome, jsonMatch.player.home.playerCountry);
                   var idAway = jsonMatch.player.away.playerID;
                   var UrlAway = config.rootUrl + jsonMatch.player.away.playerURL;
-                  var away = await player.getPlayer(UrlAway, idAway, jsonMatch.player.away.playerCountry);
+                  var away = await player.getPlayer(page, UrlAway, idAway, jsonMatch.player.away.playerCountry);
                   if (home.state != "ok") {
                     throw "getPlayer Home is unvalid :" + idHome + ": " + home.error
                   } else if (away.state != "ok") {
                     throw "getPlayer Away is unvalid :" + idAway + ": " + away.error
                   }
+
+                  await page.close();
 
                   var date = Date.UTC(year, tourYear[k].match[kk].month,
                     tourYear[k].match[kk].day,
@@ -143,6 +145,9 @@ async function getTour(tournamentName, tournamentUrl) {
                     })
                   } // IF db_head doesn't exist
                 } catch(e) {
+                  try {
+                    await page.close();
+                  } catch(e) {}
                   res[flashscoreId] = e;
                   console.error("ERROR tour.js", e);
                 }
@@ -155,7 +160,7 @@ async function getTour(tournamentName, tournamentUrl) {
     console.error("ERROR tour.js in", tournamentName, e);
   }
 
-  await browser.close();
+  //await browser.close();
   //await models.sequelize.close();
 
   return res;
