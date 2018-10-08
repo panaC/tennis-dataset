@@ -30,7 +30,10 @@ process.on('SIGINT', () => {
   json[timestamp] = {};
 
   // Lauch browser headless
-  const browser = await puppeteer.launch();
+  // Lauch browser headless
+  const browser_ = await puppeteer.launch();
+  const browser = await browser_.createIncognitoBrowserContext();
+
   const page = await browser.newPage();
   // Start URL
   await page.goto(config.topUrl);
@@ -39,7 +42,7 @@ process.on('SIGINT', () => {
 
   try {
     const tourUrl = await page.evaluate(ftour.tourUrl)
-    await browser.close();
+    await page.close();
     // GET all tournament URL
 
     // While on each tournament
@@ -47,7 +50,7 @@ process.on('SIGINT', () => {
       var tournamentName = tourUrl[i][1];
       var tournamentUrl = tourUrl[i][0];
       console.log("=> " + tournamentName);
-      var res = await tour.getTour(tournamentName, tournamentUrl);
+      var res = await tour.getTour(browser, tournamentName, tournamentUrl);
       if (Object.keys(res).length) {
         json[timestamp][tournamentName] = res;
         console.error("ERROR " + tournamentName + ": ", res);
@@ -60,7 +63,7 @@ process.on('SIGINT', () => {
 
   }
 
-
+  await browser.close();
   await jsonTools.writeJson(filename, json);
 }
 

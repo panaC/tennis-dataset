@@ -24,13 +24,9 @@ const weather     = require('./../scrap_weather/weather');
 // Param : tournamentName -> The flashscore tournament name
 //         tournamentUrl -> The flashscore tournament URL
 // Return : state -> OK | ERROR
-async function getTour(tournamentName, tournamentUrl) {
+async function getTour(browser, tournamentName, tournamentUrl) {
 
   var res = {};
-
-    // Lauch browser headless
-    const browser_ = await puppeteer.launch();
-    const browser = await browser_.createIncognitoBrowserContext();
 
   try {
     var page = await browser.newPage();
