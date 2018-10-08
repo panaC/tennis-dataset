@@ -28,18 +28,18 @@ async function getTour(tournamentName, tournamentUrl) {
 
   var res = {};
 
-  // Lauch browser headless
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setViewport(config.dim_screen);
-  // Get URL per years per tour
-  await page.goto(tournamentUrl + 'archive/');
-
-  await page.waitFor(config.delay_waitForG); // wait for stabilization
-
   try {
+    // Lauch browser headless
+    const browser = await puppeteer.launch();
+    var page = await browser.newPage();
+    await page.setViewport(config.dim_screen);
+    // Get URL per years per tour
+    await page.goto(tournamentUrl + 'archive/');
+
+    await page.waitFor(config.delay_waitForG); // wait for stabilization
+
     const linkYears = await page.evaluate(ftour.linkYears);
-    await browser.close();
+    await page.close();
 
     // While on each tournament archive per year
     for (let j in linkYears) {
@@ -47,17 +47,13 @@ async function getTour(tournamentName, tournamentUrl) {
         var year = linkYears[j][1];
         var linkTour = linkYears[j][0];
 
-        // Lauch browser headless
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.setViewport(config.dim_screen);
-
         // Get Resultat table only
+        var page = await browser.newPage();
         await page.goto(linkTour + 'results/');
         await page.waitFor(config.delay_waitForG); // wait for stabilization
         //parse each <tr> in table
         tourYear = await page.evaluate(ftour.tourYears);
-        await browser.close();
+        await page.close();
 
         // Scrap all data on each match ID
         for (let k in tourYear) {
@@ -78,7 +74,7 @@ async function getTour(tournamentName, tournamentUrl) {
               if (db_head == null || db_head.dataValues.stateFlashscore != "ok") {
                 try {
                   // scraping match
-                  var jsonMatch = await match.getMatch(flashscoreId);
+                  var jsonMatch = await match.getMatch(browser, flashscoreId);
                   if (jsonMatch.state == "ERROR") {
                     throw "JsonMatch is unvalid : " + jsonMatch.error;
                   }
@@ -156,7 +152,7 @@ async function getTour(tournamentName, tournamentUrl) {
     console.error("ERROR tour.js in", tournamentName, e);
   }
 
-
+  await browser.close();
   //await models.sequelize.close();
 
   return res;

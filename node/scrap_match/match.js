@@ -4,16 +4,13 @@ const puppeteer   = require('puppeteer');
 
 // Function for scraping the match data on flashscore
 // Param : matchId -> The flashscore id for set in the URL
+// Param : browser -> "limit memory leaks"
 // Return : res -> JSON contain the match data
-async function getMatch(matchId) {
+async function getMatch(browser, matchId) {
 
   var res = {};
 
-  // Lauch browser headless
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  // Start URL
-
+  var page = await browser.newPage();
   await page.setViewport(config.dim_screen);
   await page.goto(config.match + matchId);
   await page.waitFor(config.delay_waitForG); // wait for stabilization
@@ -87,7 +84,7 @@ async function getMatch(matchId) {
     res.error = e
   }
 
-  await browser.close();
+  await page.close();
 
   return res;
 }
@@ -95,7 +92,12 @@ async function getMatch(matchId) {
 module.exports.getMatch = getMatch;
 
 if (typeof require != 'undefined' && require.main == module) {
-    getMatch(process.argv[2] || "Qeuptssd").then(data => {
+
+  // Lauch browser headless
+  puppeteer.launch().then((browser) => {
+    getMatch(browser, process.argv[2] || "Qeuptssd").then(data => {
       console.log(data);
     });
+  });
+  browser.close();
 }
