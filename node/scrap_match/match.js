@@ -14,7 +14,8 @@ async function getMatch(page, matchId) {
     var p = true;
     var page = await browser.browser(config.match + matchId);
   } else {
-    var page = await browser.goto(page, config.match + matchId);
+    await page.goto(config.match + matchId);
+    await page.waitFor(config.delay_waitForG); // wait for stabilization
   }
   //get info match
   try {
