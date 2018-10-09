@@ -24,14 +24,14 @@ const weather     = require('./../scrap_weather/weather');
 // Param : tournamentName -> The flashscore tournament name
 //         tournamentUrl -> The flashscore tournament URL
 // Return : state -> OK | ERROR
-async function getTour(browser, tournamentName, tournamentUrl) {
+async function getTour(tournamentName, tournamentUrl) {
 
   var res = {};
 
   try {
     var page = await browser.browser(tournamentUrl + 'archive/');
     const linkYears = await page.evaluate(ftour.linkYears);
-    //await page.close();
+    await page.close();
 
     // While on each tournament archive per year
     for (let j in linkYears) {
@@ -42,7 +42,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
         // Get Resultat table only
         var page = await browser.browser(linkTour + 'results/');
         tourYear = await page.evaluate(ftour.tourYears);
-        //await page.close();
+        await page.close();
 
         // Scrap all data on each match ID
         for (let k in tourYear) {
@@ -63,8 +63,8 @@ async function getTour(browser, tournamentName, tournamentUrl) {
               if (db_head == null || db_head.dataValues.stateFlashscore != "ok") {
                 try {
                   // scraping match
-                  var page = await browser.browser("about:blank");
-                  var jsonMatch = await match.getMatch(page, flashscoreId);
+                  //var page = await browser.browser("about:blank");
+                  var jsonMatch = await match.getMatch(null, flashscoreId);
 
                   if (jsonMatch.state == "ERROR") {
                     throw "JsonMatch is unvalid : " + jsonMatch.error;
@@ -72,10 +72,10 @@ async function getTour(browser, tournamentName, tournamentUrl) {
 
                   var idHome = jsonMatch.player.home.playerID;
                   var UrlHome = config.rootUrl + jsonMatch.player.home.playerURL;
-                  var home = await player.getPlayer(page, UrlHome, idHome, jsonMatch.player.home.playerCountry);
+                  var home = await player.getPlayer(null, UrlHome, idHome, jsonMatch.player.home.playerCountry);
                   var idAway = jsonMatch.player.away.playerID;
                   var UrlAway = config.rootUrl + jsonMatch.player.away.playerURL;
-                  var away = await player.getPlayer(page, UrlAway, idAway, jsonMatch.player.away.playerCountry);
+                  var away = await player.getPlayer(null, UrlAway, idAway, jsonMatch.player.away.playerCountry);
                   if (home.state != "ok") {
                     throw "getPlayer Home is unvalid :" + idHome + ": " + home.error
                   } else if (away.state != "ok") {
@@ -161,6 +161,6 @@ if (typeof require != 'undefined' && require.main == module) {
   getTour(process.argv[2] || "acapulco", process.argv[3] || "https://www.flashscore.com/tennis/atp-singles/acapulco/")
       .then(data => {
         console.log(data);
-        models.sequelize.close();
+        //models.sequelize.close();
       });
 }

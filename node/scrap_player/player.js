@@ -12,8 +12,8 @@ async function getPlayer(page, linkPlayer, idPlayer, countryPlayer) {
   if (!page) {
     var page = await browser.browser(linkPlayer);
   } else {
-    await page.waitFor(config.delay_waitForG); // wait for stabilization
     await page.goto(linkPlayer);
+    await page.waitFor(config.delay_waitForG); // wait for stabilization
   }
 
   try {

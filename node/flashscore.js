@@ -42,7 +42,7 @@ process.on('SIGINT', () => {
       var tournamentName = tourUrl[i][1];
       var tournamentUrl = tourUrl[i][0];
       console.log("=> " + tournamentName);
-      var res = await tour.getTour(browser, tournamentName, tournamentUrl);
+      var res = await tour.getTour(tournamentName, tournamentUrl);
       if (Object.keys(res).length) {
         json[timestamp][tournamentName] = res;
         console.error("ERROR " + tournamentName + ": ", res);
