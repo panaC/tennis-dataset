@@ -31,7 +31,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
   try {
     var page = await browser.browser(tournamentUrl + 'archive/');
     const linkYears = await page.evaluate(ftour.linkYears);
-    await page.close();
+    //await page.close();
 
     // While on each tournament archive per year
     for (let j in linkYears) {
@@ -42,7 +42,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
         // Get Resultat table only
         var page = await browser.browser(linkTour + 'results/');
         tourYear = await page.evaluate(ftour.tourYears);
-        await page.close();
+        //await page.close();
 
         // Scrap all data on each match ID
         for (let k in tourYear) {
@@ -82,7 +82,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
                     throw "getPlayer Away is unvalid :" + idAway + ": " + away.error
                   }
 
-                  await page.close();
+                  //await page.close();
 
                   var date = Date.UTC(year, tourYear[k].match[kk].month,
                     tourYear[k].match[kk].day,
