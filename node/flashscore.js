@@ -1,4 +1,4 @@
-const puppeteer   = require('puppeteer');
+const browser     = require('./tools/browser.js');
 const config      = require(__dirname + '/config/config.js')["setting"];
 const tour        = require('./scrap_tour/tour.js');
 const jsonTools   = require('./tools/json_tools');
@@ -11,6 +11,7 @@ let json = {};
 
 process.on('SIGINT', () => {
   jsonTools.writeJson(filename, json);
+  process.exit();
 });
 
 
@@ -29,16 +30,7 @@ process.on('SIGINT', () => {
   json = await jsonTools.readJson(filename); // read Json FIle;
   json[timestamp] = {};
 
-  // Lauch browser headless
-  // Lauch browser headless
-  const browser_ = await puppeteer.launch();
-  const browser = await browser_.createIncognitoBrowserContext();
-
-  const page = await browser.newPage();
-  // Start URL
-  await page.goto(config.topUrl);
-  await page.setViewport(config.dim_screen);
-  await page.waitFor(config.delay_waitForG); // wait for stabilization
+  var page = await browser.browser(config.topUrl);
 
   try {
     const tourUrl = await page.evaluate(ftour.tourUrl)

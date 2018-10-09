@@ -2,7 +2,7 @@ const config      = require(__dirname + '/../config/config.js')["setting"];
 const ftour       = require('./tour_evaluate.js');
 const match       = require('./../scrap_match/match');
 const player      = require('./../scrap_player/player');
-const puppeteer   = require('puppeteer');
+const browser     = require('./../tools/browser.js');
 const models      = require('./../models');
 const dbTools     = require('./../tools/db_tools');
 const weather     = require('./../scrap_weather/weather');
@@ -29,12 +29,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
   var res = {};
 
   try {
-    var page = await browser.newPage();
-    await page.setViewport(config.dim_screen);
-    // Get URL per years per tour
-    await page.goto(tournamentUrl + 'archive/');
-    await page.waitFor(config.delay_waitForG); // wait for stabilization
-
+    var page = await browser.browser(tournamentUrl + 'archive/');
     const linkYears = await page.evaluate(ftour.linkYears);
     await page.close();
 
@@ -45,10 +40,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
         var linkTour = linkYears[j][0];
 
         // Get Resultat table only
-        var page = await browser.newPage();
-        await page.goto(linkTour + 'results/');
-        await page.waitFor(config.delay_waitForG); // wait for stabilization
-        //parse each <tr> in table
+        var page = await browser.browser(linkTour + 'results/');
         tourYear = await page.evaluate(ftour.tourYears);
         await page.close();
 
@@ -71,7 +63,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
               if (db_head == null || db_head.dataValues.stateFlashscore != "ok") {
                 try {
                   // scraping match
-                  var page = await browser.newPage();
+                  var page = await browser.browser("about:blank");
                   var jsonMatch = await match.getMatch(page, flashscoreId);
 
                   if (jsonMatch.state == "ERROR") {
@@ -122,6 +114,9 @@ async function getTour(browser, tournamentName, tournamentUrl) {
                         flashscoreId: flashscoreId
                       });
                     } catch(e) {
+                      try {
+                        await page.close();
+                      } catch(e) {}
                       res[flashscoreId] = e;
                       console.error("ERROR tour.js", e);
                       continue;
@@ -141,9 +136,7 @@ async function getTour(browser, tournamentName, tournamentUrl) {
                     })
                   } // IF db_head doesn't exist
                 } catch(e) {
-                  try {
-                    await page.close();
-                  } catch(e) {}
+
                   res[flashscoreId] = e;
                   console.error("ERROR tour.js", e);
                 }

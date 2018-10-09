@@ -1,6 +1,6 @@
 const config      = require(__dirname + '/../config/config.js')["setting"];
 const ft          = require('./match_evaluate.js');
-const puppeteer   = require('puppeteer');
+const browser     = require('./../tools/browser.js');
 
 // Function for scraping the match data on flashscore
 // Param : matchId -> The flashscore id for set in the URL
@@ -10,9 +10,12 @@ async function getMatch(page, matchId) {
 
   var res = {};
 
-  await page.goto(config.match + matchId);
-  await page.waitFor(config.delay_waitForG); // wait for stabilization
-
+  if (!page) {
+    var p = true;
+    var page = await browser.browser(config.match + matchId);
+  } else {
+    var page = await browser.goto(page, config.match + matchId);
+  }
   //get info match
   try {
     var tmpLi;
@@ -82,6 +85,9 @@ async function getMatch(page, matchId) {
     res.error = e
   }
 
+  if (p)  {
+    await page.close();
+  }
   return res;
 }
 

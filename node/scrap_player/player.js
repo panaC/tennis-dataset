@@ -1,5 +1,5 @@
+const browser     = require('./../tools/browser.js');
 const config      = require(__dirname + '/../config/config.js')["setting"];
-const puppeteer   = require('puppeteer');
 const models      = require('./../models');
 const evaluate    = require('./player_evaluate');
 const dbTools     = require('./../tools/db_tools');
@@ -8,13 +8,12 @@ async function getPlayer(page, linkPlayer, idPlayer, countryPlayer) {
   var res = {};
   res.state = "ok";
 
-  // Lauch browser headless
-  // const browser = await puppeteer.launch();
-  // const page = await browser.newPage();
-  await page.setViewport(config.dim_screen);
-  // Get URL per years per tour
-  await page.goto(linkPlayer);
-  await page.waitFor(config.delay_waitForG); // wait for stabilization
+  if (!page) {
+    var p = true;
+    var page = await browser.browser(linkPlayer);
+  } else {
+    var page = await browser.goto(page, linkPlayer);
+  }
 
   try {
     //findOne if exist idPlayer
@@ -44,6 +43,9 @@ async function getPlayer(page, linkPlayer, idPlayer, countryPlayer) {
     console.error("ERROR tour.js", e);
   }
 
+  if (p) {
+    await page.close();
+  }
   //await models.sequelize.close();
 
   return res;
