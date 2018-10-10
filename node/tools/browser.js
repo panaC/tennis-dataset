@@ -11,7 +11,7 @@ async function browser (url) {
       '&--disable-setuid-sandbox=true' +
       '&--disable-dev-shm-usage=true' +
       '&--disable-accelerated-2d-canvas=true' +
-      '&--disable-gpu=true'
+      '&--disable-gpu=true',
       defaultViewport: config.dim_screen
     });
 
