@@ -4,7 +4,14 @@ const config      = require(__dirname + '/../config/config.js')["setting"];
 async function browser (url) {
   try {
     var browser = await puppeteer.connect({
-      browserWSEndpoint: 'ws://' + config.browserless_ip + ':' + config.browserless_port,
+      browserWSEndpoint: 'ws://' + config.browserless_ip + ':' + config.browserless_port +
+      '?--proxy-server=' + config.proxy +
+      '&--window-size=1366x768' +
+      '&--no-sandbox=true' +
+      '&--disable-setuid-sandbox=true' +
+      '&--disable-dev-shm-usage=true' +
+      '&--disable-accelerated-2d-canvas=true' +
+      '&--disable-gpu=true'
       defaultViewport: config.dim_screen
     });
 
