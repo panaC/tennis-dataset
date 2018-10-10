@@ -16,7 +16,7 @@ async function browser (url) {
     //   defaultViewport: config.dim_screen
     // });
 
-    var browser.launch({args: [ "--proxy-server=35.180.86.47:3030" ]});
+    var browser = puppeteer.launch({args: [ "--proxy-server=35.180.86.47:3030" ]});
 
     var page = await browser.newPage();
     // Start URL
