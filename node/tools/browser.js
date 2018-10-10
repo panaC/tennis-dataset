@@ -8,7 +8,7 @@ module.exports.browser = async function (url) {
   });
   //const browser = await browser_.createIncognitoBrowserContext();
 
-  const page = await browser.newPage();
+  var page = await browser.newPage();
   // Start URL
   await page.goto(url);
   await page.waitFor(config.delay_waitForG); // wait for stabilization
