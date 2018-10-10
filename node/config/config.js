@@ -29,7 +29,7 @@ module.exports = {
     delay_waitForG: 500,
     delay_waitForP: 50,
     dim_screen: {width: 1366, height: 768},
-    browserless_ip: /*"35.180.86.47"*/"127.0.0.1",
+    browserless_ip: "35.180.86.47"/*"127.0.0.1"*/,
     browserless_port: 3030
   }
 };
