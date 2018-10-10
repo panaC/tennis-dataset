@@ -5,8 +5,8 @@ async function browser (url) {
 
   async function bro(url) {
     var browser = await puppeteer.connect({
-      browserWSEndpoint: 'ws://' + config.browserless_ip + ':' + config.browserless_port +
-      '?--proxy-server=' + config.proxy,
+      browserWSEndpoint: 'ws://' + config.browserless_ip + ':' + config.browserless_port,
+      //'?--proxy-server=' + config.proxy,
       //'&--window-size=1366x768' +
       //'&--no-sandbox=true' +
       //'&--disable-setuid-sandbox=true' +
