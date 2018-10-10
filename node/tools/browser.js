@@ -2,7 +2,8 @@ const puppeteer   = require('puppeteer');
 const config      = require(__dirname + '/../config/config.js')["setting"];
 
 async function browser (url) {
-  try {
+
+  async function bro(url) {
     var browser = await puppeteer.connect({
       browserWSEndpoint: 'ws://' + config.browserless_ip + ':' + config.browserless_port +
       '?--proxy-server=' + config.proxy +
@@ -19,11 +20,16 @@ async function browser (url) {
     // Start URL
     await page.goto(url);
     await page.waitFor(config.delay_waitForG); // wait for stabilization
+
+    return page;
+  }
+  try {
+    return await bro(url);
   } catch(e) {//
-    return await browser(url);
+    return await bro(url);
   }
   //const browser = await browser_.createIncognitoBrowserContext();
-  return page;
+  //return page;
 };
 
 module.exports.goto = async function (page, url) {
