@@ -34,7 +34,7 @@ process.on('SIGINT', () => {
 
   try {
     const tourUrl = await page.evaluate(ftour.tourUrl)
-    //await page.close();
+    await page.close();
     // GET all tournament URL
 
     // While on each tournament
@@ -55,7 +55,7 @@ process.on('SIGINT', () => {
 
   }
 
-  await browser.close();
+  //await browser.close();
   await jsonTools.writeJson(filename, json);
 }
 
