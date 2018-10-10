@@ -24,12 +24,13 @@ async function browser (url) {
     return page;
   }
   try {
-    return await bro(url);
-  } catch(e) {//
-    return await bro(url);
+    var page =  await bro(url);
+  } catch(e) {
+    console.error("ERROR browser.js", e);
+    var page =  await bro(url);
   }
   //const browser = await browser_.createIncognitoBrowserContext();
-  //return page;
+  return page;
 };
 
 module.exports.goto = async function (page, url) {
