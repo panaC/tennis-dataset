@@ -31,6 +31,4 @@ module.exports = {
     dim_screen: {width: 1366, height: 768},
     browserless_ip: "10.132.0.4"/*"35.180.86.47"*//*"127.0.0.1"*/,
     browserless_port: 3030,
-    proxy: "http://35.180.86.47:3030"
-  }
-};
+    proxy: "35.180.86.47:3030"
