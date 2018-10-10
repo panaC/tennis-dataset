@@ -16,7 +16,7 @@ async function browser (url) {
     //   defaultViewport: config.dim_screen
     // });
 
-    var brow = puppeteer.launch({args: [ "--proxy-server=35.180.86.47:3030" ]});
+    var brow = await puppeteer.launch({args: [ "--proxy-server=35.180.86.47:3030" ]});
 
     var page = await brow.newPage();
     // Start URL
