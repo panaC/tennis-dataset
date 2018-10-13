@@ -5,6 +5,7 @@ module.exports = {
     database: 'dataset-test',
     host: '35.204.62.91',
     dialect: 'postgres',
+    logging: false,
   },
   production: {
     username: "dataset",
