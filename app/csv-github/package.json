@@ -18,6 +18,7 @@
   "homepage": "https://github.com/panaC/tennis-dataset#readme",
   "dependencies": {
     "child-process-promise": "^2.2.1",
+    "fs-extra": "^7.0.0",
     "neat-csv": "^3.0.0",
     "pg": "^7.5.0",
     "pg-hstore": "^2.3.2",
