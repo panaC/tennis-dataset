@@ -15,5 +15,12 @@
   "bugs": {
     "url": "https://github.com/panaC/tennis-dataset/issues"
   },
-  "homepage": "https://github.com/panaC/tennis-dataset#readme"
+  "homepage": "https://github.com/panaC/tennis-dataset#readme",
+  "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "neat-csv": "^3.0.0",
+    "pg": "^7.5.0",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.39.0"
+  }
 }
