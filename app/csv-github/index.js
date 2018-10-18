@@ -32,7 +32,7 @@ async function git() {
     if (await fs.pathExists(config.csv_dir)) {
       await exec("cd " + config.csv_dir + " && git pull");
     } else {
-      await exec("git clone " + config.csv_git + " && cd csv-data");
+      await exec("git clone " + config.csv_git + " " + config.csv_dir + " && cd " + config.csv_dir);
     }
   } catch(e) {
     console.error("ERROR: repo git", e);
