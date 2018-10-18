@@ -61,41 +61,46 @@ async function git() {
 
           if (res[j] && res[j]["loser_name"] && res[j]["tourney_name"] && res[j]["winner_name"]) {
 
-            var tourName = getTourName.tourName(res[j]["tourney_name"]);
-            var winnerName = getPlayerName.playerName(res[j]["winner_name"]);
-            var looserName = getPlayerName.playerName(res[j]["loser_name"]);
+            try {
 
-            var db = await models.sequelize.query(
-              sqlInnerJoinQuery.format(tourName, year, /*res[j]["winner_name"].replace(' ', '_')*/winnerName,
-              /*res[j]["loser_name"].replace(' ', '_')*/looserName
-              ), {
-                raw: true
-            });
-            if (db[0][0] && db[0][0].id) {
+              var tourName = getTourName.tourName(res[j]["tourney_name"]);
+              var winnerName = getPlayerName.playerName(res[j]["winner_name"]);
+              var looserName = getPlayerName.playerName(res[j]["loser_name"]);
 
-              var id = db[0][0].id;
-              var hash = crypto.createHash('md5').update(
-                tourName + res[j]["winner_id"] + res[j]["loser_id"]).digest("hex");
-              res[j]["hashId"] = hash;
-              res[j]["tourney_name"] = tourName;
+              var db = await models.sequelize.query(
+                sqlInnerJoinQuery.format(tourName, year, /*res[j]["winner_name"].replace(' ', '_')*/winnerName.replace("'", "_"),
+                /*res[j]["loser_name"].replace(' ', '_')*/looserName.replace("'", "_")
+                ), {
+                  raw: true
+              });
+              if (db[0][0] && db[0][0].id) {
 
-              console.log("Id find: ", id, "hash:", hash, "round", res[j]["round"]);
+                var id = db[0][0].id;
+                var hash = crypto.createHash('md5').update(
+                  tourName + res[j]["winner_id"] + res[j]["loser_id"]).digest("hex");
+                res[j]["hashId"] = hash;
+                res[j]["tourney_name"] = tourName;
 
-              try {
-                tools.upsert("csv", res[j], {"hashId" : hash});
-              } catch(e) {
-                console.error("ERROR: csv create line", e);
+                console.log("Id find: ", id, "hash:", hash, "round", res[j]["round"]);
+
+                try {
+                  tools.upsert("csv", res[j], {"hashId" : hash});
+                } catch(e) {
+                  console.error("ERROR: csv create line", e);
+                }
+
+                try {
+                  await models.sequelize.query(sqlUpdateHeadsQuery.format(hash, id), {raw: true});
+                } catch(e) {
+                  console.error("ERROR: head update line", e);
+                }
+
+              } else {
+                console.log(/*"\x1b[47m\x1b[31m", */"ERROR: no query result", res[j]["tourney_name"], "lose:",
+                res[j]["loser_name"], "|", looserName, "win:", res[j]["winner_name"], "|", winnerName, "round", res[j]["round"], /*"\x1b[0m"*/);
               }
-
-              try {
-                await models.sequelize.query(sqlUpdateHeadsQuery.format(hash, id), {raw: true});
-              } catch(e) {
-                console.error("ERROR: head update line", e);
-              }
-
-            } else {
-              console.log(/*"\x1b[47m\x1b[31m", */"ERROR: no query result", res[j]["tourney_name"], "lose:",
-              res[j]["loser_name"], "|", looserName, "win:", res[j]["winner_name"], "|", winnerName, "round", res[j]["round"], /*"\x1b[0m"*/);
+            } catch(e) {
+              console.error("ERROR: SELECT sql", e);
             }
           } else {
             console.log("ERROR: bad csv line", res);
