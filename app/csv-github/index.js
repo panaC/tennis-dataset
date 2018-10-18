@@ -5,8 +5,9 @@ const neatCsv = require('neat-csv');
 const fs      = require('fs-extra');
 const crypto  = require('crypto');
 const tools   = require('./tools/db_tools');
-const nm      = require('./normalize');
+const getTN   = require('./normalize');
 const format  = require('string-format');
+const getPN   = require('./players');
 
 format.extend(String.prototype, {});
 
@@ -14,19 +15,19 @@ const sqlInnerJoinQuery = "SELECT \"heads\".\"id\" FROM \"heads\" \
 INNER JOIN \"flashscores\" ON \"flashscores\".\"flashscoreId\" = \"heads\".\"flashscoreId\" \
 INNER JOIN \"players\" AS home ON home.\"playerId\" = \"heads\".\"homeId\" \
 INNER JOIN \"players\" AS away ON away.\"playerId\" = \"heads\".\"awayId\" WHERE \
-\"flashscores\".\"tournamentName\" ILIKE \' {0} \' AND \
-\"flashscores\".year = \'2018\' AND \
-((home.\"fullName\" ILIKE \' {1} \' \
-AND away.\"fullName\" ILIKE \' {2} \') OR \
-(away.\"fullName\" ILIKE \' {1} \' \
-AND home.\"fullName\" ILIKE \'{2} \')) \
+\"flashscores\".\"tournamentName\" ILIKE \'{0}\' AND \
+\"flashscores\".year = \'{1}\' AND \
+((home.\"fullName\" ILIKE \'{2}\' \
+AND away.\"fullName\" ILIKE \'{3}\') OR \
+(away.\"fullName\" ILIKE \'{2}\' \
+AND home.\"fullName\" ILIKE \'{3}\')) \
 LIMIT 1";
 
 const sqlUpdateHeadsQuery = "UPDATE \"heads\" \
-SET \"atpWorldTourId\" = \' {0} \', \"stateAtpWorldTour\" = \'ok\' \
-WHERE \"heads\".\"id\" = \' {1} \'";
+SET \"atpWorldTourId\" = \'{0}\', \"stateAtpWorldTour\" = \'ok\' \
+WHERE \"heads\".\"id\" = \'{1}\'";
 
-function git() {
+async function git() {
   try {
     if (await fs.pathExists(config.csv_dir)) {
       await exec("cd " + config.csv_dir + " && git pull");
@@ -39,7 +40,9 @@ function git() {
 }
 
 (async () => {
-  git();
+  await git();
+  const getTourName = await getTN.build();
+  const getPlayerName = await getPN.build();
 
   try {
     var files = await fs.readdir(config.csv_dir);
@@ -51,18 +54,20 @@ function git() {
         filename = config.csv_dir + "/" + rg[0];
         year = rg[1];
 
-        console.log("filename:", filename, "year:", year);
+        console.log("--> filename:", filename, "year:", year);
 
         var res = await neatCsv(fs.createReadStream(filename));
         for (j in res) {
 
           if (res[j] && res[j]["loser_name"] && res[j]["tourney_name"] && res[j]["winner_name"]) {
 
-            var tourName = nm.getTourNameClassifier(res[j]["tourney_name"]);
+            var tourName = getTourName.tourName(res[j]["tourney_name"]);
+            var winnerName = getPlayerName.playerName(res[j]["winner_name"]);
+            var looserName = getPlayerName.playerName(res[j]["loser_name"]);
 
             var db = await models.sequelize.query(
-              sqlInnerJoinQuery.format(tourName, res[j]["winner_name"].replace(' ', '_'),
-              res[j]["loser_name"].replace(' ', '_')
+              sqlInnerJoinQuery.format(tourName, year, /*res[j]["winner_name"].replace(' ', '_')*/winnerName,
+              /*res[j]["loser_name"].replace(' ', '_')*/looserName
               ), {
                 raw: true
             });
@@ -72,8 +77,9 @@ function git() {
               var hash = crypto.createHash('md5').update(
                 tourName + res[j]["winner_id"] + res[j]["loser_id"]).digest("hex");
               res[j]["hashId"] = hash;
+              res[j]["tourney_name"] = tourName;
 
-              console.log("Id find: ", id, "hash:", hash);
+              console.log("Id find: ", id, "hash:", hash, "round", res[j]["round"]);
 
               try {
                 tools.upsert("csv", res[j], {"hashId" : hash});
@@ -88,10 +94,11 @@ function git() {
               }
 
             } else {
-              console.log("no query result", res[j]["tourney_name"], "lose:", res[j]["loser_name"], "win:", res[j]["winner_name"]);
+              console.log(/*"\x1b[47m\x1b[31m", */"ERROR: no query result", res[j]["tourney_name"], "lose:",
+              res[j]["loser_name"], "|", looserName, "win:", res[j]["winner_name"], "|", winnerName, "round", res[j]["round"], /*"\x1b[0m"*/);
             }
           } else {
-            console.log("bad csv line", res);
+            console.log("ERROR: bad csv line", res);
           }
         }
       }

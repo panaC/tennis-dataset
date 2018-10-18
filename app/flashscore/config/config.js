@@ -14,6 +14,20 @@ module.exports = {
     host: "10.164.0.2",
     dialect: 'postgres',
   },
+  prod_dump1: {
+    username: "dataset",
+    password: "dataset1747",
+    database: "dataset-dump1",
+    host: "10.164.0.2",
+    dialect: 'postgres',
+  },
+  prod_dump2: {
+    username: "dataset",
+    password: "dataset1747",
+    database: "dataset-dump2",
+    host: "10.164.0.2",
+    dialect: 'postgres',
+  },
   prod_aws: {
     username: "dataset",
     password: "dataset1747",
@@ -27,6 +41,7 @@ module.exports = {
     database: "dataset-dump1",
     host: "35.204.62.91",
     dialect: 'postgres',
+    logging: false,
   },
   dump2: {
     username: "dataset",
@@ -34,6 +49,7 @@ module.exports = {
     database: "dataset-dump2",
     host: "35.204.62.91",
     dialect: 'postgres',
+    logging: false,
   },
   setting: {
     match: "https://www.flashscore.com/match/",
