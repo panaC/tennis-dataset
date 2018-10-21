@@ -1,9 +1,47 @@
 const scrapeIt    = require("scrape-it");
 const date        = require("date-and-time");
-const parsePrice  = require('parse-price')
+const parsePrice  = require('parse-price');
+const json        = require('./json_tools');
+const filename    = "./dataset_atpworldtour.json"
 
-async function tour(year) {
-  return await scrapeIt("https://www.atpworldtour.com/en/scores/results-archive?year=" + year, {
+async function for_tour() {
+  let json_tour = {};
+  let data = {};
+  let url = { url: "", proxy: "http://35.180.86.47:3030"};
+
+  for (let i = 2001; i <= 2018; i++) {
+    let year = i.toString();
+    url.url = "https://www.atpworldtour.com/en/scores/results-archive?year=" + year;
+    data = await tour(url, year);
+    try {
+      json_tour[year] = data.data[year];
+      for (let j in json_tour[year]) {
+        try {
+          url.url = "https://www.atpworldtour.com/" + json_tour[year][j].url;
+          data = await match(url);
+          json_tour[year][j]["match"] = data.data["match"];
+          for (let k in json_tour[year][j]["match"]) {
+            try {
+              url.url = "https://www.atpworldtour.com/" + json_tour[year][j]["match"][k].stats_url;
+              data = await stats(url);
+              json_tour[year][j]["match"][k]["stats"] = data.data["stats"];
+            } catch(e) {
+              console.error("ERROR: stats", url.url, e);
+            }
+          }
+        } catch(e) {
+          console.error("ERROR: match", url.url, e);
+        }
+      }
+    } catch(e) {
+      console.error("ERROR: tour", url.url, e);
+    }
+  }
+  return json_tour;
+}
+
+async function tour(url, year) {
+  return await scrapeIt(url, {
     [year]: {
       listItem: "div#scoresResultsArchive tbody tr",
       data: {
@@ -43,16 +81,6 @@ async function tour(year) {
       }
     }
   })
-}
-
-async function for_tour() {
-  let json_tour = {};
-  for (let i = 2001; i <= 2018; i++) {
-    let year = i.toString();
-    data = await tour(year);
-    json_tour[year] = data.data[year];
-  }
-  return json_tour;
 }
 
 async function match(url) {
@@ -278,10 +306,7 @@ async function stats(url) {
 }
 
 if (typeof require != 'undefined' && require.main == module) {
-  // for_tour().then((data) => {
-  //   console.log(data);
-  // });
-  stats("https://www.atpworldtour.com/en/scores/2018/7480/MS001/match-stats").then((data) => {
-    console.log(data.data);
+  for_tour().then((data) => {
+    json.writeJson(filename, data)
   });
 }
