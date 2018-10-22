@@ -20,6 +20,7 @@ module.exports = {
     database: "dataset-dump1",
     host: "10.164.0.2",
     dialect: 'postgres',
+    logging: false,
   },
   prod_dump2: {
     username: "dataset",
