@@ -24,7 +24,7 @@ AND home.\"fullName\" ILIKE \'{3}\')) \
 LIMIT 1";
 
 const sqlUpdateHeadsQuery = "UPDATE \"heads\" \
-SET \"atpWorldTourId\" = \'{0}\', \"stateAtpWorldTour\" = \'ok\' \
+SET \"csvDataId\" = \'{0}\', \"stateCsvData\" = \'ok\' \
 WHERE \"heads\".\"id\" = \'{1}\'";
 
 async function git() {
