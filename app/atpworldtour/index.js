@@ -126,7 +126,7 @@ async function match(url) {
 
 function tr_stat(x) {
   return {
-    ptg: x.slice('%')[0],
+    ptg: x.split('%')[0],
     over: /\((.*)\/(.*)\)/.exec(x)[1],
     under: /\((.*)\/(.*)\)/.exec(x)[2]
   };
