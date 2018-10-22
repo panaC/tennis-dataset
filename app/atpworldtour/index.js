@@ -18,14 +18,18 @@ async function for_tour() {
       json_tour[year] = data.data[year];
       for (let j in json_tour[year]) {
         try {
-          url.url = "https://www.atpworldtour.com/" + json_tour[year][j].url;
+          url.url = "https://www.atpworldtour.com" + json_tour[year][j].url;
           data = await match(url);
           json_tour[year][j]["match"] = data.data["match"];
           for (let k in json_tour[year][j]["match"]) {
             try {
-              url.url = "https://www.atpworldtour.com/" + json_tour[year][j]["match"][k].stats_url;
-              data = await stats(url);
-              json_tour[year][j]["match"][k]["stats"] = data.data["stats"];
+              url.url = "https://www.atpworldtour.com" + json_tour[year][j]["match"][k].stats_url;
+              if (url.url == "https://www.atpworldtour.com/") {
+                console.log("STATS unknown", json_tour[year][j]["match"][k]);
+              } else {
+                data = await stats(url);
+                json_tour[year][j]["match"][k]["stats"] = data.data["stats"];
+              }
             } catch(e) {
               console.error("ERROR: stats", url.url, e);
             }
