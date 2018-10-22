@@ -12,6 +12,7 @@ async function for_tour() {
   for (let i = 2001; i <= 2018; i++) {
     let year = i.toString();
     url.url = "https://www.atpworldtour.com/en/scores/results-archive?year=" + year;
+    console.log("Start new tour", year);
     data = await tour(url, year);
     try {
       json_tour[year] = data.data[year];
