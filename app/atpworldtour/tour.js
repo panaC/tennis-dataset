@@ -26,7 +26,8 @@ class getTourName {
       throw "ERROR: build class getTourName, sql error";
     }
 
-    classifier.learn("queen's club", "London")
+    classifier.learn("queen's club", "London");
+    classifier.learn("roland garros", "French Open");
     return new getTourName(sql, classifier);
   };
 
