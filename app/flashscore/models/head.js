@@ -38,10 +38,10 @@ module.exports = (sequelize, DataType) => {
     stateAway: {
       type: DataType.STRING
     },
-    datasetId: {
+    csvDataId: {
       type: DataType.STRING
     },
-    stateDataset: {
+    stateCsvData: {
       type: DataType.STRING
     },
     injuriesId: {
