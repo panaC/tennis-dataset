@@ -293,10 +293,10 @@ async function test() {
 }
 
 if (typeof require != 'undefined' && require.main == module) {
-  // (async () => {
-  //   getTourName = await getTN.build();
-  //   getPlayerName = await getPN.build();
-  //   await for_tour();
-  // })();
-  test();
+  (async () => {
+    getTourName = await getTN.build();
+    getPlayerName = await getPN.build();
+    await for_tour();
+  })();
+  //test();
 }
