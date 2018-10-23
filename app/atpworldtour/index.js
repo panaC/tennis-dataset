@@ -115,7 +115,6 @@ async function for_tour() {
       console.error("ERROR: tour", url.url, e);
     }
   }
-  return json_tour;
 }
 
 async function tour(url, year) {
