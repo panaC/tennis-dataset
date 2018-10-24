@@ -34,7 +34,7 @@ WHERE \"heads\".\"id\" = \'{1}\'";
 
 async function setDb(o, year) {
   try {
-    var tourName = getTourName.tourName(o.name);
+    var tourName = getTourName.tourName(o.location.split(',') ? o.location.split(',')[0] : o.location);
     var winnerName = getPlayerName.playerName(o.winner);
     var looserName = getPlayerName.playerName(o.loser);
 
