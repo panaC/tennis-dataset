@@ -62,7 +62,7 @@ async function setDb(o, year) {
       }
 
     } else {
-      console.log(/*"\x1b[47m\x1b[31m", */"ERROR: no query result", tourName, "|", o.name,  "lose:",
+      console.log(/*"\x1b[47m\x1b[31m", */"ERROR: no query result", tourName, "|", o.location.split(',') ? o.location.split(',')[0] : o.location,  "lose:",
       o.loser, "|", looserName, "win:", o.winner, "|", winnerName /*"\x1b[0m"*/);
     }
   } catch(e) {
