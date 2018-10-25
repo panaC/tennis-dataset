@@ -1,5 +1,6 @@
 CREATE OR REPLACE FUNCTION ft_diff_co(delay integer, moment date, player varchar, p_oppo varchar)
  RETURNS TABLE(
+	 uncertainty float,
 	 count bigint,
 	 serve_rating float,
 	 aces float,
@@ -60,7 +61,11 @@ AS $$
 					 service_point_won := service_point_won - r.avg_service_point_won;
 					 return_point_won := return_point_won - r.avg_return_point_won;
 					 total_point_won := total_point_won - r.avg_total_point_won;
+						FOR r in (select * from ft_uncertainty(delay, moment, player, p_oppo))
+						LOOP
+								uncertainty := R.uncertainty;
 								RETURN NEXT;
+						END LOOP;
 				END LOOP;
 		END LOOP;
 		RETURN;
