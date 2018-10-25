@@ -1,0 +1,6 @@
+SELECT count(*) as count FROM "heads"
+INNER JOIN "flashscores" ON "flashscores"."flashscoreId" = "heads"."flashscoreId"
+INNER JOIN "players" AS home ON home."playerId" = "heads"."homeId"
+INNER JOIN "players" AS away ON away."playerId" = "heads"."awayId"
+INNER JOIN "csvs" ON csvs."hashId" = heads."csvDataId"
+INNER JOIN "atpworldtours" ON atpworldtours."hashId" = "heads"."atpWorldTourId"
