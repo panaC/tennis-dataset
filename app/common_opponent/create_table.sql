@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS commonopponent(
+  uncertainty float,
+  count bigint,
+  serve_rating float,
+  aces float,
+  double_faults float,
+  first_serve float,
+  first_serve_point_won float,
+  second_serve_point_won float,
+  bp_saved float,
+  service_game_played float,
+  return_rating float,
+  first_serve_return_point_won float,
+  second_serve_return_point_won float,
+  bp_converted float,
+  return_games_played float,
+  service_point_won float,
+  return_point_won float,
+  total_point_won float,
+  id serial primary key not null
+);
