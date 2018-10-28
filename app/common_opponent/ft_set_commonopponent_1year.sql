@@ -26,7 +26,7 @@ CREATE OR REPLACE FUNCTION ft_set_commonopponent_1year_year(var_year varchar(255
  returns void
  AS $$
  DECLARE
- 	 var_id record;
+ 	 var_id integer;
      r record;
 	BEGIN
 		ALTER TABLE heads ADD COLUMN co1yearId varchar(255);
