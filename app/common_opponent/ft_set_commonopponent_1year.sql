@@ -22,7 +22,7 @@ CREATE OR REPLACE FUNCTION ft_set_commonopponent_1year()
 LANGUAGE 'plpgsql';
 
 
-CREATE OR REPLACE FUNCTION ft_set_commonopponent_1year_year(year varchar(255))
+CREATE OR REPLACE FUNCTION ft_set_commonopponent_1year_year(var_year varchar(255))
  returns void
  AS $$
  DECLARE
@@ -33,7 +33,7 @@ CREATE OR REPLACE FUNCTION ft_set_commonopponent_1year_year(year varchar(255))
         EXCEPTION
             WHEN duplicate_column THEN RAISE NOTICE 'column co1yearId already exists in heads.';
 		FOR r in (SELECT heads.id as heads_id, atpworldtours.date as date, atpworldtours.winner as winner, atpworldtours.loser as loser FROM "heads"
-				INNER JOIN "atpworldtours" ON atpworldtours."hashId" = "heads"."atpWorldTourId" and atpworldtours.year = year)
+				INNER JOIN "atpworldtours" ON atpworldtours."hashId" = "heads"."atpWorldTourId" and atpworldtours.year = var_year LIMIT 10)
 		LOOP
 			insert into commonopponents select * from ft_diff_co(1, r.date::date, r.winner, r.loser)
 				returning id into var_id;
