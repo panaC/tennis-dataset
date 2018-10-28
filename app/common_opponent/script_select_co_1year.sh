@@ -1,5 +1,5 @@
 #! /bin/bash
-set PGPASSWORD=dataset1747
+export PGPASSWORD=dataset1747
 
 psql -h 10.164.0.2 -U dataset -d dataset-dump1 -a -f ft_set_commonopponent_1year.sql
 
