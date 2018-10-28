@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS commonopponent(
+CREATE TABLE IF NOT EXISTS commonopponents(
   uncertainty float,
   count bigint,
   serve_rating float,
