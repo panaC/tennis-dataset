@@ -3,10 +3,10 @@ CREATE OR REPLACE FUNCTION ft_set_commonopponent_20years()
  returns void
  AS $$
  DECLARE
- 	 var_id record;
+ 	 var_id integer;
      r record;
 	BEGIN
-		ALTER TABLE heads ADD COLUMN co20yearsId varchar(255);
+		ALTER TABLE heads ADD COLUMN co20yearsId integer;
         EXCEPTION
             WHEN duplicate_column THEN RAISE NOTICE 'column co20yearsId already exists in heads.';
 		FOR r in (SELECT heads.id as heads_id, atpworldtours.date as date, atpworldtours.winner as winner, atpworldtours.loser as loser FROM "heads"
@@ -29,7 +29,7 @@ CREATE OR REPLACE FUNCTION ft_set_commonopponent_20years_year(var_year varchar(2
  	 var_id integer;
      r record;
 	BEGIN
-		ALTER TABLE heads ADD COLUMN co20yearsId varchar(255);
+		ALTER TABLE heads ADD COLUMN co20yearsId integer;
         EXCEPTION
             WHEN duplicate_column THEN RAISE NOTICE 'column co20yearsId already exists in heads.';
 		FOR r in (SELECT heads.id as heads_id, atpworldtours.date as date, atpworldtours.winner as winner, atpworldtours.loser as loser FROM "heads"
