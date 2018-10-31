@@ -1,10 +1,20 @@
-CREATE OR REPLACE FUNCTION ft_minutes(delay integer, moment date, p1 varchar, p2 varchar)
+CREATE OR REPLACE FUNCTION ft_minutes_player(delay integer, moment date, p varchar)
  RETURNS TABLE (
- sum_minutes integer
+ sum_minutes float
 ) AS $$
 BEGIN
- RETURN QUERY select sum(csvs.minutes) as sum_minutes from csvs
+ RETURN QUERY select sum(csvs.minutes)::float as sum_minutes from csvs
 	where extract(epoch from age(moment, csvs.tourney_date))/86400 <= delay AND
-		(csvs.winner_name ILIKE p1 or csvs.loser_name ILIKE p2);
+		(csvs.winner_name ILIKE p1 or csvs.loser_name ILIKE p1);
+END; $$
+LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION ft_minutes(delay integer, moment date, p1 varchar, p2 varchar)
+ RETURNS TABLE (
+ sum_minutes float
+) AS $$
+BEGIN
+	RETURN QUERY select (ft_minutes_player(delay, moment, p2) /
+		ft_minutes_player(delay, moment, p1)) as sum_minutes;
 END; $$
 LANGUAGE 'plpgsql';
