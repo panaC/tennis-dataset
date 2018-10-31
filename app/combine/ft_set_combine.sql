@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION ft_combine(delay integer, moment date, player varchar
  RETURNS TABLE(
    nb_match_win float,
    h2h float,
-   minutes float,
+   minutes float
  )
 AS $$
  DECLARE
@@ -41,7 +41,7 @@ CREATE OR REPLACE FUNCTION ft_set_combine_year(var_year varchar(255))
 		LOOP
 			insert into combines select * from ft_combine(1, r.date::date, r.winner, r.loser)
 				returning id into var_id;
-			update heads set co1yearId = var_id where heads.id = r.heads_id;
+			update heads set combineId = var_id where heads.id = r.heads_id;
 		END LOOP;
 		RETURN;
 	END;
