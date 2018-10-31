@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION ft_minutes(delay integer, moment date, p1 varchar, p2
  sum_minutes float
 ) AS $$
 BEGIN
-	RETURN QUERY select (ft_minutes_player(delay, moment, p2) /
-		ft_minutes_player(delay, moment, p1)) as sum_minutes;
+	RETURN QUERY select ((ft_minutes_player(delay, moment, p2) - ft_minutes_player(delay, moment, p1)) /
+   (ft_minutes_player(delay, moment, p2) + ft_minutes_player(delay, moment, p1))) as sum_minutes;
 END; $$
 LANGUAGE 'plpgsql';
