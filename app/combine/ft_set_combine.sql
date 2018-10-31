@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION ft_combine(delay integer, moment date, player varchar
  RETURNS TABLE(
    nb_match_win float,
    h2h float,
-   minutes float
+   minutes integer
  )
 AS $$
  DECLARE
