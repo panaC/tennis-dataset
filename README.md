@@ -5,8 +5,11 @@
  - flashscore scraper that fill database for each new match with statistics / odds / live-score
  - CSV merger that fill database for each match line
 
-### the database setup contains 6 tables :
+### the database setup contains 9 tables :
   - heads
+    - combine
+    - commonopponent
+    - atpworldtour
     - flashscore
     - csv
     - players
