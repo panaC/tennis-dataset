@@ -100,3 +100,4 @@ INNER JOIN "atpworldtours" AS atp ON atp."hashId" = "heads"."atpWorldTourId"
 INNER JOIN "commonopponents" AS com ON com.id = "heads"."co1yearid"
 INNER JOIN "commonopponents" AS opp ON opp.id = "heads"."co20yearsid"
 INNER JOIN "combines" AS combine ON combine.id = heads.combineid
+WHERE atp.year != '2017' AND atp.year != '2018'
