@@ -35,6 +35,6 @@ opp.total_point_won as total_point_won_20years,
 combine.nb_match_win as winner_loser_match_win,
 combine.h2h as h2h,
 combine.minutes as minutes_loser_winner from
-ft_diff_co(1, {date}, {winner}, {looser}) as com
-cross join ft_diff_co(20, {date}, {winner}, {looser}) as opp 
-cross join ft_combine(1, {date}, {winner}, {looser}) as combine
+ft_diff_co(1, '{date}', '{winner}', '{looser}') as com
+cross join ft_diff_co(20, '{date}', '{winner}', '{looser}') as opp
+cross join ft_combine(1, '{date}', '{winner}', '{looser}') as combine
